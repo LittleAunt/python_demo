@@ -7,3 +7,4 @@ resp = urlopen(url)
 with open("mybaidu.html", mode="w") as f:
     f.write(resp.read().decode("utf-8"))
     print("over!")
+    f.close()
