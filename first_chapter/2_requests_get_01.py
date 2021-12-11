@@ -1,4 +1,4 @@
-import requests
+import requests # requests 模块安装 pip install requests -i "国内源"
 
 query = input("请输入搜索内容：")
 
