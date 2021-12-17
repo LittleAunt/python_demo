@@ -62,7 +62,8 @@ class OneNineBC(BaseBC):
     def crawling(self):
         # 开启 charles 代理的情况下需要 verify=False，否则会报错
         resp = requests.get(self.url, headers=self.headers, verify=False) 
-        return resp.json()
+        resp.close()
+        return self.parse(resp.json())
         
      # 解析数据
     def parse(self, data):
