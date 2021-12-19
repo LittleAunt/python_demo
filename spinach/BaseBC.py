@@ -1,7 +1,8 @@
 class BaseBC:
 
-    game_list = []
-
+    def __init__(self):
+        self.game_list = []
+        
     # 爬取数据
     def crawling(self):
         pass

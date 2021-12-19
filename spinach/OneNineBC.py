@@ -1,6 +1,7 @@
 from BaseBC import BaseBC
 from dic_nine_wb import NineDicWB
 import requests
+from config import USER_SESSION_19
 
 
 # 获取19比赛队伍 ID
@@ -21,7 +22,8 @@ def get_nine_rq(nine):
     # print nine
     nine_rq = {}
     for zd in nine:
-        if zd[9]['ZH'] == 'Home' and zd[5] != 0:   # Home 主队，Away 客队 (19 的数据有可能赔率未显示的时候为 0 )
+        # Home 主队，Away 客队 (19 的数据有可能赔率未显示的时候为 0 )
+        if zd[9]['ZH'] == 'Home' and zd[5] != 0:
             for kd in nine:
                 if kd[9]['ZH'] == 'Away' and zd[13] == kd[13] * -1.0:
                     key = zd[13]
@@ -45,13 +47,14 @@ def get_nine_dx(nine):
                     nine_dx[key] = str(zd_value) + ',' + str(kd_value)
     return nine_dx
 
+
 class OneNineBC(BaseBC):
 
     bc_type = "19"
     url = "https://prod20063.1x2aaa.com/api/eventlist/asia/leagues/1/prematch"
     headers = {
         "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.55 Safari/537.36",
-        "session": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjdXN0b21lcklkIjozMzE4NDk1NywiZXhwaXJlZERhdGUiOjE2Mzk2NjU0NjU1MDQsImlhdCI6MTYzOTU3ODk3MX0.wswZGOLBcSpgC8_nnPWUaQaQtrH_2h1C1dH2noo-hoc",
+        "session": USER_SESSION_19,
         "accept": "application/json",
         "accept-encoding": "gzip, deflate, br",
         "accept-language": "zh-CN,zh;q=0.9,en;q=0.8",
@@ -61,10 +64,10 @@ class OneNineBC(BaseBC):
     # 爬取数据
     def crawling(self):
         # 开启 charles 代理的情况下需要 verify=False，否则会报错
-        resp = requests.get(self.url, headers=self.headers, verify=False) 
+        resp = requests.get(self.url, headers=self.headers, verify=False)
         resp.close()
         return self.parse(resp.json())
-        
+
      # 解析数据
     def parse(self, data):
         serializedData = data['serializedData']
@@ -80,7 +83,8 @@ class OneNineBC(BaseBC):
                 sport_game['league_name'] = league_name
                 sport_game['team_name_1'] = bs[1][0][1]['ZH'].strip()
                 sport_game['team_name_2'] = bs[1][1][1]['ZH'].strip()
-                nine_team_id = get_nine_team_ids(sport_game['team_name_1'], sport_game['team_name_2'])
+                nine_team_id = get_nine_team_ids(
+                    sport_game['team_name_1'], sport_game['team_name_2'])
                 sport_game['team_id_1'] = nine_team_id[0]
                 sport_game['team_id_2'] = nine_team_id[1]
                 sport_game['qc_rq_list'] = {}
@@ -102,3 +106,13 @@ class OneNineBC(BaseBC):
                 self.game_list.append(sport_game)
                 # print str(sport_game).decode('unicode-escape')
         return self.game_list
+
+    # 自动下单
+    def auto_bet(self, data):
+        # 获取下注详情信息
+        url_bet_detail = "https://prod20063.1x2aaa.com/api/betslip/betslip"
+        #
+        url_bet_detail_data = {
+            "selectionId": "0HC257959061881102336HMM",
+            "viewKey": 1
+        }

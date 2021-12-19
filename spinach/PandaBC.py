@@ -4,11 +4,11 @@ import requests
 import json
 
 # 用户身份验证。接口中 request_headers 中的 requestId 字段
-USER_AUTH = "c0e36a18b92f2ba15330574340d0666145d9cfd7"
+USER_AUTH = "194791627d2064e05b62fb1fb5286f71b38f4574"
 
 # 获取小金比赛队伍 ID
 def get_ob_team_ids(ob_sport):
-    ob_team_id = [-1, -1]
+    ob_team_id = [-2, -2]
     for key, value in OBDic.items():
         if value == ob_sport['mhn'].strip():
             ob_team_id[0] = key
@@ -120,6 +120,7 @@ class PandaBC(BaseBC):
     # 解析分类 ids，用来进行比赛请求参数
     def parseMids(self, data):
         nolivedata = data['data']['nolivedata']
+        print(f"一共获取到 {len(nolivedata)} 个联赛")
         midsStr = ""
         count = 0
         start_index = 0
@@ -135,8 +136,11 @@ class PandaBC(BaseBC):
         self.flag = ~self.flag
         # 拼接需要请求的联赛 id
         for i in range(start_index, count):
+            if nolivedata[i]["tn"] == "梦幻对决":
+                print(f"index:{i}, 梦幻对决 无效比赛")
+                continue
             midsStr = midsStr + ',' + nolivedata[i]['mids']
-        print(f"请求{start_index} -> {count} 个联赛 id")
+        print(f"拼接{start_index} -> {count} 个联赛 id")
         # for sport in nolivedata:
         #     midsStr = midsStr + ',' + sport['mids']
         return midsStr.replace(",", "", 1)
