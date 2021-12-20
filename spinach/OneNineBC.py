@@ -2,6 +2,8 @@ from BaseBC import BaseBC
 from dic_nine_wb import NineDicWB
 import requests
 from config import USER_SESSION_19
+from config import USER_AUTH_19
+import json
 
 
 # 获取19比赛队伍 ID
@@ -29,7 +31,7 @@ def get_nine_rq(nine):
                     key = zd[13]
                     zd_value = round(zd[5] - 1.0, 2)
                     kd_value = round(kd[5] - 1.0, 2)
-                    nine_rq[key] = str(zd_value) + ',' + str(kd_value)
+                    nine_rq[key] = f"{zd_value},{kd_value},{zd[0]},{kd[0]}"
     return nine_rq
 
 
@@ -44,7 +46,7 @@ def get_nine_dx(nine):
                     key = zd[13]
                     zd_value = round(zd[5] - 1.0, 2)
                     kd_value = round(kd[5] - 1.0, 2)
-                    nine_dx[key] = str(zd_value) + ',' + str(kd_value)
+                    nine_dx[key] = f"{zd_value},{kd_value},{zd[0]},{kd[0]}"
     return nine_dx
 
 
@@ -58,7 +60,7 @@ class OneNineBC(BaseBC):
         "accept": "application/json",
         "accept-encoding": "gzip, deflate, br",
         "accept-language": "zh-CN,zh;q=0.9,en;q=0.8",
-        "authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsYW5ndWFnZUNvZGUiOiJ6aCIsImJldHRpbmdWaWV3IjoiQXNpYW4gVmlldyIsInNvcnRpbmdUeXBlSWQiOjAsImJldHRpbmdMYXlvdXQiOjIsImRpc3BsYXlUeXBlSWQiOjEsInRpbWV6b25lSWQiOjIxLCJvZGRzU3R5bGVJZCI6IiIsImFsbG93Q2hhbmdlT2RkIjowLCJpbnRUYWJFeHBhbmRlZCI6MSwiY291bnRyeUNvZGUiOiJVQSIsImN1cnJlbmN5UmF0ZSI6MC4xMTg3NTUwODUzMzUzODYsImN1cnJlbmN5UmF0ZWV1ciI6MC4xMzk1NTQyNjUwMDE2NzYsImN1c3RvbWVyTGltaXRzIjpbXSwiY3VzdG9tZXJJZCI6MzMxODQ5NTcsImV1T2Rkc0lkIjoiMSIsImtvcmVhbk9kZHNJZCI6IjEiLCJhc2lhbk9kZHNJZCI6IjEiLCJvcGVyYXRvclRva2VuIjoiWVRsbU5HWXpNVGxpWW1WbVlXRXhPRFF4Wm1VeU1tVXdNV0V5WmpNNFpqRTZOVEpoTmpVd1lqWmxNREZtTnpnNE0yTXhNV1UwTnpGbFlUa3paR1ZtWkdNeVpUTmpOVFUxTWpBeFlUSTRObU5sTURsallUY3pNbUpsWTJGbU5qVTFZekpsWVRjNE1XSmhaRFJpT1RVMllUZGlZak5tWlRBeE56azFZak14T1Rrek5ERmpaREk1TW1FMU56STJOREJqTm1RME5UaGlZMkUzWlRObE1EZG1aVEV5TlRRMk5qQmtOVEppTmpnek9Ua3haVGd5WVRNMU16TXhOMlF6TXpnMU5qRTJaR1psWWpkaU9EVmlZamcyTldKbE1UZzRNR05oTUdFM01EVTJaVGt4IiwiY3VzdG9tZXJMb2dpbiI6Ik1hbmJldHhfbXhsNjY5OSIsImN1cnJlbmN5Q29kZSI6IkNOWSIsImRvbWFpbklEIjowLCJhZ2VudElEIjoyMjYwNDA1NCwiYmFsYW5jZSI6IjAiLCJyZWFsQmFsYW5jZSI6IjAuMDAwMCIsIm1lcmNoYW50Q0MiOiIxMDU1NzMzOSIsInRlc3RDdXN0b21lciI6MCwiY3VzdG9tZXJMZXZlbCI6MCwiaWF0IjoxNjM5NTc4OTcxfQ.K-ZbHjs_z1Xr1cjNmq6moHmxGNgWDkLTlr4zvSNCCvA"
+        "authorization": USER_AUTH_19
     }
 
     # 爬取数据
@@ -108,11 +110,93 @@ class OneNineBC(BaseBC):
         return self.game_list
 
     # 自动下单
-    def auto_bet(self, data):
+    def auto_bet(self, game, pk, bet, iszd, ratio, amount):
+        print("**********************************************************************")
         # 获取下注详情信息
         url_bet_detail = "https://prod20063.1x2aaa.com/api/betslip/betslip"
-        #
+        headers_bet_detail = {
+            "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.55 Safari/537.36",
+            "session": USER_SESSION_19,
+            "accept": "application/json",
+            "content-type": "application/json",
+            "accept-encoding": "gzip, deflate, br",
+            "accept-language": "zh-CN,zh;q=0.9,en;q=0.8",
+            "authorization": USER_AUTH_19,
+            "referer": f"https://prod20063.1x2aaa.com/betslip/?sse=false&authorization={USER_AUTH_19}"
+        }
+        # 提取 selectionId，为19比赛对应赔率的 id
+        selectionId = ""
+        bet_list = game[pk]
+        for key, value in bet_list:
+            if bet == key:
+                bet_values = value.split(',')
+                if iszd:
+                    selectionId = bet_values[2]
+                else:
+                    selectionId = bet_values[3]
+
         url_bet_detail_data = {
-            "selectionId": "0HC257959061881102336HMM",
+            "selectionId": selectionId,
             "viewKey": 1
         }
+        url_bet_detail_data_list = []
+        url_bet_detail_data_list.append(url_bet_detail_data)
+        print(f"获取下注详情信息 selectionId = {selectionId}")
+        resp_bet_detail = requests.post(url_bet_detail, headers=headers_bet_detail, data=json.dumps(
+            url_bet_detail_data_list), verify=False)
+        resp_bet_detail.close()
+        resp_json_bet = resp_bet_detail.json()
+        # 开始下注
+        url_stake = "https://prod20063.1x2aaa.com/api/betslip/bets"
+        # data 配置
+        trueOdds = resp_json_bet[0]["market"]["Changeset"]["Selection"]["TrueOdds"]
+        displayOdds = resp_json_bet[0]["market"]["Changeset"]["Selection"]["DisplayOdds"]
+        points = resp_json_bet[0]["market"]["Changeset"]["Selection"]["Points"]
+        maxStake = round(8.4360248 * resp_json_bet[0]["market"]["Changeset"]["Selection"]["Settings"]["MaxWin"] / (trueOdds - 1), 2)
+        stake = amount # 下注额*********
+        potentialReturns = str(round(trueOdds * stake, 2))
+        selectionName = resp_json_bet[0]["market"]["Changeset"]["Selection"]["BetslipLine"]
+        
+        data_stake = [{
+            "betName": "single bet",
+            "type": "single",
+            "selectionsMapped": [{
+                "id": selectionId,
+                "trueOdds": trueOdds,
+                "displayOdds": displayOdds,
+                "points": points
+            }],
+            "trueOdds": trueOdds,
+            "displayOdds": displayOdds,
+            "clientOdds": str(trueOdds),
+            "comboSize": 0,
+            "isLive": False,
+            "numberOfLines": 1,
+            "maxStake": maxStake,
+            "minStake": 8.44,
+            "numberOfBets": 1,
+            "stake": stake,
+            "potentialReturns": potentialReturns,
+            "oddStyleID": "1",
+            "freeBet": {
+                "id": 0,
+                "amount": 0,
+                "gainDecimal": 0
+            },
+            "sportID": 1,
+            "metaData": {
+                "device": "desktop",
+                "isTablet": False,
+                "bettingView": "Asian View",
+                "fullURL": "https://prod20063.1x2aaa.com/zh/asian-view/today/%25E8%25B6%25B3%25E7%2590%2583",
+                "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.55 Safari/537.36"
+            },
+            "selectionsNames": [{
+                "id": selectionId,
+                "selectionName": selectionName
+            }],
+            "selectionsPlaced": [selectionId]
+        }]
+        print(f"下注请求 data {data_stake}")
+        resp_stake = requests.post(url_stake, headers=headers_bet_detail, data=json.dumps(data_stake), verify=False)
+        print(resp_stake.text)

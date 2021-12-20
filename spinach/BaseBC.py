@@ -30,5 +30,9 @@ class BaseBC:
     bc_rq_list = ""  # 半场让球列表
     bc_dx_list = ""  # 半场大小列表
     game_ids = ""  # 19 比赛 ID
+    
+    19: {
+        key(赔率):'value1,value2,value1_id,value2_id' id 用来进行后续下单前的赔率请求的
+    }
 
 """

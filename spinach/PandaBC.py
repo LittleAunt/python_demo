@@ -2,9 +2,10 @@ from BaseBC import BaseBC
 from dic_ob import OBDic
 import requests
 import json
+from config import USER_AUTH_OB
 
 # 用户身份验证。接口中 request_headers 中的 requestId 字段
-USER_AUTH = "194791627d2064e05b62fb1fb5286f71b38f4574"
+USER_AUTH = USER_AUTH_OB
 
 # 获取小金比赛队伍 ID
 def get_ob_team_ids(ob_sport):
