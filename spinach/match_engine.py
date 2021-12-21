@@ -1,4 +1,3 @@
-import os
 from config import TARGET_ODDS, ONLY_WIN_OR_LOSE
 
 match_result_list = [] # 匹配成功的结果列表
@@ -16,23 +15,6 @@ match_result_list = [] # 匹配成功的结果列表
     "ratio_b": , # b 平台的赔率
 }
 """
-    
-def print_red(p_str):
-    print('\033[1;31;40m ' + p_str + ' \033[0m')
-    # os.system('say "匹配成功！"')
-
-
-# 盘口数值转换，用于 log 输出
-def convert_game_type(type_f):
-    type_str = ''
-    if type_f % 0.5 != 0:
-        if type_f > 0:
-            type_str = str(type_f - 0.25) + '/' + str(type_f + 0.25)
-        else:
-            type_str = '-' + str(abs(type_f) - 0.25) + '/' + str(abs(type_f) + 0.25)
-    else:
-        type_str = str(type_f)
-    return type_str
 
 # 盘口对比
 def compare_pk(game1, game2, pk, list1, list2):
@@ -72,7 +54,7 @@ def compare_pk(game1, game2, pk, list1, list2):
             match_result["bet"] = list1_key
             match_result["zd"] = "game_b"
             match_result["kd"] = "game_a"
-            match_result["ratio"] = ratio1
+            match_result["ratio"] = ratio2
             match_result["ratio_a"] = float(list1_values[1])
             match_result["ratio_b"] = float(list2_values[0])
             match_result_list.append(match_result)
@@ -133,5 +115,5 @@ def cal_odds(game_a_list, game_b_list):
                                                                                 game_a['team_id_2']))
     print(f'匹配了 {match_count} 场比赛')
     # 按赔率从高到低排序
-    match_result_sort_list = sorted(match_result_list, key=lambda result:result["ratio"])
+    match_result_sort_list = sorted(match_result_list, reverse=True, key=lambda result:result["ratio"])
     return match_result_sort_list

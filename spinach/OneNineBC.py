@@ -109,12 +109,12 @@ class OneNineBC(BaseBC):
                 # print str(sport_game).decode('unicode-escape')
         return self.game_list
 
-    # 自动下单
-    def auto_bet(self, game, pk, bet, iszd, ratio, amount):
+    # 核实赔率是否有变动
+    def check_bet(self, game, pk, bet, iszd, ratio):
         print("**********************************************************************")
         # 获取下注详情信息
         url_bet_detail = "https://prod20063.1x2aaa.com/api/betslip/betslip"
-        headers_bet_detail = {
+        self.headers_bet = {
             "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.55 Safari/537.36",
             "session": USER_SESSION_19,
             "accept": "application/json",
@@ -125,50 +125,61 @@ class OneNineBC(BaseBC):
             "referer": f"https://prod20063.1x2aaa.com/betslip/?sse=false&authorization={USER_AUTH_19}"
         }
         # 提取 selectionId，为19比赛对应赔率的 id
-        selectionId = ""
+        self.selectionId = ""
         bet_list = game[pk]
         for key, value in bet_list.items():
             if bet == key:
                 bet_values = value.split(',')
                 if iszd:
-                    selectionId = bet_values[2]
+                    self.selectionId = bet_values[2]
                 else:
-                    selectionId = bet_values[3]
+                    self.selectionId = bet_values[3]
 
         url_bet_detail_data = {
-            "selectionId": selectionId,
+            "selectionId": self.selectionId,
             "viewKey": 1
         }
         url_bet_detail_data_list = []
         url_bet_detail_data_list.append(url_bet_detail_data)
-        print(f"获取下注详情信息 selectionId = {selectionId}")
-        resp_bet_detail = requests.post(url_bet_detail, headers=headers_bet_detail, data=json.dumps(
+        print(f"获取下注详情信息 selectionId = {self.selectionId}")
+        resp_bet_detail = requests.post(url_bet_detail, headers=self.headers_bet, data=json.dumps(
             url_bet_detail_data_list), verify=False)
         resp_bet_detail.close()
-        resp_json_bet = resp_bet_detail.json()
-        # 开始下注
+        # 提取字段。判断赔率是否改变
+        self.resp_json_bet = resp_bet_detail.json()
+        self.trueOdds = self.resp_json_bet[0]["market"]["Changeset"]["Selection"]["TrueOdds"]
+        print(f"获取最新赔率: {self.trueOdds}")
+        hk_odds = round(self.trueOdds - 1.0, 2)
+        print(f"获取最新赔率hk: {hk_odds}")
+        if ratio == hk_odds:
+            return True
+        else:
+            return False
+
+    # 开始下注
+    def auto_bet(self, money):
         url_stake = "https://prod20063.1x2aaa.com/api/betslip/bets"
         # data 配置
-        trueOdds = resp_json_bet[0]["market"]["Changeset"]["Selection"]["TrueOdds"]
-        displayOdds = resp_json_bet[0]["market"]["Changeset"]["Selection"]["DisplayOdds"]
-        points = resp_json_bet[0]["market"]["Changeset"]["Selection"]["Points"]
-        maxStake = round(8.4360248 * resp_json_bet[0]["market"]["Changeset"]["Selection"]["Settings"]["MaxWin"] / (trueOdds - 1), 2)
-        stake = amount # 下注额*********
-        potentialReturns = str(round(trueOdds * stake, 2))
-        selectionName = resp_json_bet[0]["market"]["Changeset"]["Selection"]["BetslipLine"]
-        
+        displayOdds = self.resp_json_bet[0]["market"]["Changeset"]["Selection"]["DisplayOdds"]
+        points = self.resp_json_bet[0]["market"]["Changeset"]["Selection"]["Points"]
+        maxStake = round(8.4360248 * self.resp_json_bet[0]["market"]["Changeset"]
+                         ["Selection"]["Settings"]["MaxWin"] / (self.trueOdds - 1), 2)
+        stake = money  # 下注额*********
+        potentialReturns = str(round(self.trueOdds * stake, 2))
+        selectionName = self.resp_json_bet[0]["market"]["Changeset"]["Selection"]["BetslipLine"]
+
         data_stake = [{
             "betName": "single bet",
             "type": "single",
             "selectionsMapped": [{
-                "id": selectionId,
-                "trueOdds": trueOdds,
+                "id": self.selectionId,
+                "trueOdds": self.trueOdds,
                 "displayOdds": displayOdds,
                 "points": points
             }],
-            "trueOdds": trueOdds,
+            "trueOdds": self.trueOdds,
             "displayOdds": displayOdds,
-            "clientOdds": str(trueOdds),
+            "clientOdds": str(self.trueOdds),
             "comboSize": 0,
             "isLive": False,
             "numberOfLines": 1,
@@ -192,13 +203,14 @@ class OneNineBC(BaseBC):
                 "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.55 Safari/537.36"
             },
             "selectionsNames": [{
-                "id": selectionId,
+                "id": self.selectionId,
                 "selectionName": selectionName
             }],
-            "selectionsPlaced": [selectionId]
+            "selectionsPlaced": [self.selectionId]
         }]
         print(f"下注请求 data {data_stake}")
-        resp_stake = requests.post(url_stake, headers=headers_bet_detail, data=json.dumps(data_stake), verify=False)
+        resp_stake = requests.post(
+            url_stake, headers=self.headers_bet, data=json.dumps(data_stake), verify=False)
         resp_stake_json = resp_stake.json()
         resp_stake.close()
         print(f"下注结果 {resp_stake_json}")
