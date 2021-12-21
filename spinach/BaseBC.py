@@ -30,9 +30,20 @@ class BaseBC:
     bc_rq_list = ""  # 半场让球列表
     bc_dx_list = ""  # 半场大小列表
     game_ids = ""  # 19 比赛 ID
-    
+    *************************
     19: {
         key(赔率):'value1,value2,value1_id,value2_id' id 用来进行后续下单前的赔率请求的
     }
-
+    ****************************
+    ob:
+    mid: "" # 比赛 id
+    tournamentId: "" # 锦标赛 id
+    tournamentLevel: "" # 锦标赛 level
+    {
+        key(赔率):'value1,value2,marketId,marketType,oddsId1,oddsId1Type,oddsId2,oddsId2Type,placeNum' 
+        id 用来进行后续下单前的赔率请求的 
+        marketId 比赛中某一个盘口 id, marketType 盘口类型
+        oddsId oddsIdType下注赔率对应的 id 和类型，主队、客队不同
+        placeNum 在ui第几行显示
+    }
 """

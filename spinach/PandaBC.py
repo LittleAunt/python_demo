@@ -8,6 +8,8 @@ from config import USER_AUTH_OB
 USER_AUTH = USER_AUTH_OB
 
 # 获取小金比赛队伍 ID
+
+
 def get_ob_team_ids(ob_sport):
     ob_team_id = [-2, -2]
     for key, value in OBDic.items():
@@ -19,7 +21,7 @@ def get_ob_team_ids(ob_sport):
     return ob_team_id
 
 
-def get_ob_rq_dx_3(ob_sport_2, ob_rq_dx):
+def get_ob_rq_dx_3(ob_sport_2, ob_rq_dx, ob_type):
     ob_sport_3 = ob_sport_2['hv']
     # 全场让球分类前的正负号,生成 key
     if ob_sport_3[0] == '-':
@@ -44,9 +46,16 @@ def get_ob_rq_dx_3(ob_sport_2, ob_rq_dx):
     ob_sport_4 = ob_sport_2['ol']
     ob_sport_5 = ob_sport_4[0]['ov']
     ob_sport_6 = ob_sport_4[1]['ov']
-    rq_dx_value = str((ob_sport_5 - 100000) / 100000.0) + ',' + str((ob_sport_6 - 100000) / 100000.0)
+    rq_dx_value1 = str((ob_sport_5 - 100000) / 100000.0)
+    rq_dx_value2 = str((ob_sport_6 - 100000) / 100000.0)
     # 添加进盘口列表
-    ob_rq_dx[rq_key] = rq_dx_value
+    hid = ob_sport_2['hid']
+    oid1 = ob_sport_4[0]['oid']
+    ot1 = ob_sport_4[0]['ot']
+    oid2 = ob_sport_4[1]['oid']
+    ot2 = ob_sport_4[1]['ot']
+    placeNum = ob_sport_2['hn']
+    ob_rq_dx[rq_key] = f"{rq_dx_value1},{rq_dx_value2},{hid},{ob_type},{oid1},{ot1},{oid2},{ot2},{placeNum}"
 
 
 def get_ob_rq_dx_2(ob_sport_a, ob_type, ob_rq_dx):
@@ -58,11 +67,11 @@ def get_ob_rq_dx_2(ob_sport_a, ob_type, ob_rq_dx):
             if ob_sport_1:
                 # 如果数据只是个字典
                 if isinstance(ob_sport_1, dict):
-                    get_ob_rq_dx_3(ob_sport_1, ob_rq_dx)
+                    get_ob_rq_dx_3(ob_sport_1, ob_rq_dx, ob_type)
                 # 如果数据是列表，包含多个赔率
                 if isinstance(ob_sport_1, list):
                     for ob_sport_2 in ob_sport_1:
-                        get_ob_rq_dx_3(ob_sport_2, ob_rq_dx)
+                        get_ob_rq_dx_3(ob_sport_2, ob_rq_dx, ob_type)
 
 
 # 获取小金比赛的全场让球、大小 ob_type= 4 (全场让球)，2（全场大小），19（半场让球），18（半场大小）
@@ -74,6 +83,7 @@ def get_ob_rq_dx(ob_sport, ob_type):
     get_ob_rq_dx_2(ob_sport_a, ob_type, ob_rq_dx)
     get_ob_rq_dx_2(ob_sport_b, ob_type, ob_rq_dx)
     return ob_rq_dx
+
 
 class PandaBC(BaseBC):
 
@@ -104,6 +114,7 @@ class PandaBC(BaseBC):
                        "cuid": "220087197198348288",
                        "sort": 1, "pids": "", "euid": "3020101", "cos": 0}
     # 爬取数据
+
     def crawling(self):
         resp_mids = requests.post(self.url_mids, headers=self.headers_mids,
                                   data=json.dumps(self.data_post_mids), verify=False)
@@ -117,20 +128,22 @@ class PandaBC(BaseBC):
         resp_games.close()
         return self.parse(resp_games.json())
 
-    flag = True # 根据 flag 决定请求前40还是后续数据
+    flag = True  # 根据 flag 决定请求前40还是后续数据
+    MAX_COUNT = 20  # 第一次最多请求多少组数据
     # 解析分类 ids，用来进行比赛请求参数
+
     def parseMids(self, data):
         nolivedata = data['data']['nolivedata']
         print(f"一共获取到 {len(nolivedata)} 个联赛")
         midsStr = ""
         count = 0
         start_index = 0
-        if len(nolivedata) > 40:
+        if len(nolivedata) > self.MAX_COUNT:
             if self.flag:
-                count = 40
+                count = self.MAX_COUNT
             else:
                 count = len(nolivedata)
-                start_index = 40
+                start_index = self.MAX_COUNT
         else:
             count = len(nolivedata)
         # 取反
@@ -145,7 +158,7 @@ class PandaBC(BaseBC):
         # for sport in nolivedata:
         #     midsStr = midsStr + ',' + sport['mids']
         return midsStr.replace(",", "", 1)
-    
+
     # 解析球赛数据
     def parse(self, data):
         # print data_json
@@ -158,10 +171,14 @@ class PandaBC(BaseBC):
             # print str(ob_sport).decode('unicode-escape')
             sport_game['type'] = self.bc_type
             ob_team_id = get_ob_team_ids(ob_sport)
+            sport_game['league_name'] = ob_sport['tn']
             sport_game['team_id_1'] = ob_team_id[0]
             sport_game['team_id_2'] = ob_team_id[1]
             sport_game['team_name_1'] = ob_sport['mhn'].strip()
             sport_game['team_name_2'] = ob_sport['man'].strip()
+            sport_game['mid'] = ob_sport['mid']
+            sport_game['tournamentId'] = ob_sport['tid']
+            sport_game['tournamentLevel'] = ob_sport['tlev']
             if ob_sport['hpsData']:
                 ob_sport_a = ob_sport['hpsData'][0]
                 sport_game['qc_rq_list'] = get_ob_rq_dx(ob_sport_a, '4')
@@ -176,3 +193,104 @@ class PandaBC(BaseBC):
             # print str(sport_game).decode('unicode-escape')
             self.game_list.append(sport_game)
         return self.game_list
+
+    # 自动下单
+    def auto_bet(self, game, pk, bet, iszd, ratio, amount):
+        print("**********************************************************************")
+        url_market = "https://api.lzwkbgtuq.com/yewu13/v1/betOrder/queryLatestMarketInfo"
+        # data_market
+        marketId = ""
+        matchInfoId = game['mid']
+        oddsId = ""
+        oddsType = ""
+        playId = ""
+        placeNum = ""
+        bet_list = game[pk]
+        print(f"bet_list {bet_list}")
+        for key, value in bet_list.items():
+            if bet == key:
+                bet_values = value.split(',')
+                marketId = bet_values[2]
+                playId = bet_values[3]
+                placeNum = int(bet_values[8])
+                if iszd:
+                    oddsId = bet_values[4]
+                    oddsType = bet_values[5]
+                else:
+                    oddsId = bet_values[6]
+                    oddsType = bet_values[7]
+
+        data_market = {
+            "idList": [{
+                "marketId": marketId,
+                "matchInfoId": matchInfoId,
+                "oddsId": oddsId,
+                "oddsType": oddsType,
+                "playId": playId,
+                "placeNum": placeNum,
+                "matchType": 1,
+                "sportId": "1"
+            }]
+        }
+        print(f"注单请求参数 {data_market}")
+        # 请求注单详情信息
+        resp_market = requests.post(
+            url_market, headers=self.headers_mids, data=json.dumps(data_market), verify=False)
+        resp_market_json = resp_market.json()
+        resp_market.close()
+        print(f"注单详情返回 {resp_market_json}")
+        # 开始下注
+        url_bet = "https://api.lzwkbgtuq.com/yewu13/v1/betOrder/bet"
+        # data_bet
+        tournamentId = game["tournamentId"]
+        odds = resp_market_json["data"][0]["currentMarket"]["marketOddsList"][0]["oddsValue"]
+        # 保留两位小数，不够补 0。重要：必须2位，服务器大概率是根据此字符串进行对比的
+        oddFinally = "%.02f"%((odds - 100000) / 100000.0)
+        playName = resp_market_json["data"][0]["playName"]
+        matchName = game["league_name"]
+        if iszd:
+            playOptionName_1 = game["team_name_1"]
+        else:
+            playOptionName_1 = game["team_name_2"]
+        playOptionName_2 = resp_market_json["data"][0]["currentMarket"]["marketOddsList"][0]["playOptions"]
+        playOptionName = f"{playOptionName_1} {playOptionName_2}"
+        tournamentLevel = game["tournamentLevel"]
+        data_bet = {
+            "userId": "",
+            "acceptOdds": 2,
+            "tenantId": 1,
+            "deviceType": 2,
+            "currencyCode": "CNY",
+            "deviceImei": "",
+            "seriesOrders": [{
+                "seriesSum": 1,
+                "seriesType": 1,
+                "seriesValues": "单关",
+                "fullBet": 0,
+                "orderDetailList": [{
+                    "sportId": "1",
+                    "matchId": matchInfoId,
+                    "tournamentId": tournamentId,
+                    "scoreBenchmark": "",
+                    "betAmount": amount,
+                    "marketId": marketId,
+                    "playOptionsId": oddsId,
+                    "odds": odds,
+                    "oddFinally": oddFinally,
+                    "playName": playName,
+                    "sportName": "足球",
+                    "matchType": 1,
+                    "matchName": matchName,
+                    "playOptionName": playOptionName,
+                    "playOptions": oddsType,
+                    "marketTypeFinally": "HK",
+                    "tournamentLevel": tournamentLevel,
+                    "playId": playId,
+                    "dataSource": "TX",
+                    "placeNum": placeNum
+                }]
+            }]
+        }
+        print(f"下注参数 {data_bet}")
+        resp_bet = requests.post(url_bet, headers=self.headers_mids, data=json.dumps(data_bet), verify=False)
+        print(f"下注结果 {resp_bet.text}")

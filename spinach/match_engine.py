@@ -132,4 +132,6 @@ def cal_odds(game_a_list, game_b_list):
                                                                                 game_a['team_id_1'],
                                                                                 game_a['team_id_2']))
     print(f'匹配了 {match_count} 场比赛')
-    return match_result_list
+    # 按赔率从高到低排序
+    match_result_sort_list = sorted(match_result_list, key=lambda result:result["ratio"])
+    return match_result_sort_list

@@ -127,7 +127,7 @@ class OneNineBC(BaseBC):
         # 提取 selectionId，为19比赛对应赔率的 id
         selectionId = ""
         bet_list = game[pk]
-        for key, value in bet_list:
+        for key, value in bet_list.items():
             if bet == key:
                 bet_values = value.split(',')
                 if iszd:
@@ -199,4 +199,10 @@ class OneNineBC(BaseBC):
         }]
         print(f"下注请求 data {data_stake}")
         resp_stake = requests.post(url_stake, headers=headers_bet_detail, data=json.dumps(data_stake), verify=False)
-        print(resp_stake.text)
+        resp_stake_json = resp_stake.json()
+        resp_stake.close()
+        print(f"下注结果 {resp_stake_json}")
+        if resp_stake_json["status"] == "Open":
+            return True
+        else:
+            return False
