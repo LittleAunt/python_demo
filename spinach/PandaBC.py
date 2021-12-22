@@ -161,7 +161,8 @@ class PandaBC(BaseBC):
 
     # 解析球赛数据
     def parse(self, data):
-        # print data_json
+        # 先清除上次爬去的数据
+        self.game_list.clear()
         ob_list = data['data']['data']
         for ob_sport in ob_list:
             sport_game = {}
@@ -197,6 +198,7 @@ class PandaBC(BaseBC):
     # 核实赔率是否有变动
     def check_bet(self, game, pk, bet, iszd, ratio):
         print("**********************************************************************")
+        print(f"{game['type']} 平台赔率: {ratio} 核对......")
         url_market = "https://api.lzwkbgtuq.com/yewu13/v1/betOrder/queryLatestMarketInfo"
         # data_market
         self.marketId = ""
@@ -250,6 +252,7 @@ class PandaBC(BaseBC):
 
     # 开始下注
     def auto_bet(self, game, iszd, money):
+        print("**********************************************************************")
         url_bet = "https://api.lzwkbgtuq.com/yewu13/v1/betOrder/bet"
         # data_bet
         tournamentId = game["tournamentId"]
@@ -301,12 +304,12 @@ class PandaBC(BaseBC):
                 }]
             }]
         }
-        print(f"下注参数 {data_bet}")
+        # print(f"下注参数 {data_bet}")
         resp_bet = requests.post(
             url_bet, headers=self.headers_mids, data=json.dumps(data_bet), verify=False)
         resp_bet_json = resp_bet.json()
         resp_bet.close()
-        print(f"下注结果 {resp_bet_json}")
+        # print(f"下注结果 {resp_bet_json}")
         if resp_bet_json["msg"] == "成功":
             return True
         else:

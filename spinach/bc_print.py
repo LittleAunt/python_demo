@@ -26,6 +26,7 @@ def convert_pk(pk_type):
     
 # 打印匹配结果
 def print_match_result(match_result):
+    print("**********************************************************************")
     # 打印当前赔率
     ratio = match_result["ratio"]
     print_red(f"当前赔率: {ratio}")
@@ -42,7 +43,7 @@ def print_match_result(match_result):
     else:
         zk_a = "客"
     ratio_a = match_result["ratio_a"]
-    print_red(f"{type_a} -> {ls_a} -> {team_a_1} : {team_a_2} -> {pk} {bet_type} ({zk_a}) : {ratio_a}")
+    print_red(f"{type_a} -》{ls_a} -》{team_a_1} : {team_a_2} -》{pk} {bet_type} ({zk_a}) : {ratio_a}")
     # 打印 game_b 信息
     game_b = match_result["game_b"]
     type_b = game_b["type"]
@@ -55,4 +56,4 @@ def print_match_result(match_result):
     else:
         zk_b = "客"
     ratio_b = match_result["ratio_b"]
-    print_red(f"{type_b} -> {ls_b} -> {team_b_1} : {team_b_2} -> {pk} {bet_type} ({zk_b}) : {ratio_b}")
+    print_red(f"{type_b} -》{ls_b} -》{team_b_1} : {team_b_2} -》{pk} {bet_type} ({zk_b}) : {ratio_b}")

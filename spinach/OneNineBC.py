@@ -72,6 +72,8 @@ class OneNineBC(BaseBC):
 
      # 解析数据
     def parse(self, data):
+        # 先清除上次爬去的数据
+        self.game_list.clear()
         serializedData = data['serializedData']
         # 遍历联赛
         for ls in serializedData:
@@ -112,6 +114,7 @@ class OneNineBC(BaseBC):
     # 核实赔率是否有变动
     def check_bet(self, game, pk, bet, iszd, ratio):
         print("**********************************************************************")
+        print(f"{game['type']} 平台赔率: {ratio} 核对......")
         # 获取下注详情信息
         url_bet_detail = "https://prod20063.1x2aaa.com/api/betslip/betslip"
         self.headers_bet = {
@@ -158,6 +161,7 @@ class OneNineBC(BaseBC):
 
     # 开始下注
     def auto_bet(self, money):
+        print("**********************************************************************")
         url_stake = "https://prod20063.1x2aaa.com/api/betslip/bets"
         # data 配置
         displayOdds = self.resp_json_bet[0]["market"]["Changeset"]["Selection"]["DisplayOdds"]
@@ -208,12 +212,12 @@ class OneNineBC(BaseBC):
             }],
             "selectionsPlaced": [self.selectionId]
         }]
-        print(f"下注请求 data {data_stake}")
+        # print(f"下注参数 data {data_stake}")
         resp_stake = requests.post(
             url_stake, headers=self.headers_bet, data=json.dumps(data_stake), verify=False)
         resp_stake_json = resp_stake.json()
         resp_stake.close()
-        print(f"下注结果 {resp_stake_json}")
+        # print(f"下注结果 {resp_stake_json}")
         if resp_stake_json["status"] == "Open":
             return True
         else:
