@@ -23,10 +23,10 @@ def compare_pk(game1, game2, pk, list1, list2):
             continue
         # 只匹配 0.5、2.5 这种绝对输赢的盘口，不匹配存在平局或输一半情况的盘口
         if ONLY_WIN_OR_LOSE:
-            # 截取小数点后面的数字
+            # 以小数点拆分，小数点后为 5 才继续对比
             list1_key_str = str(list1_key)
-            list1_key_point = float(list1_key_str[list1_key_str.index('.') + 1:])
-            if list1_key_point != 5:
+            list1_key_values = list1_key_str.split(".")
+            if len(list1_key_values) != 2 or list1_key_values[1] != '5':
                 continue
         # 提取两个平台盘口对应的赔率数值
         list2_value_str = list2[list1_key]

@@ -1,4 +1,4 @@
-# 匹配结果后手动输入金额
+# 提前输入金额
 
 from OneNineBC import OneNineBC
 from PandaBC import PandaBC
@@ -12,6 +12,14 @@ from config import REDUCE_MONEY
 oneNineBC = OneNineBC()
 pandaBC = PandaBC()
 
+platform = input("请输入需要下注平台 a/b：")
+if platform.strip() == 'a':
+    is_bet_money_a = True
+else:
+    is_bet_money_a = False
+money = input("请输入下注金额：")
+bet_money = int(money.strip())
+print(f"平台a：{is_bet_money_a}, 金额：{bet_money}")
 # 是否循环，当下注成功应跳出循环
 is_bet = False
 while not is_bet:
@@ -33,39 +41,26 @@ while not is_bet:
         bc_print.print_match_result(match_result)
         if is_bet:
             continue
+        # 打印金额
+        ratio = match_result["ratio"]
+        ratio_a = match_result["ratio_a"]
+        game_a = match_result["game_a"]
+        ratio_b = match_result["ratio_b"]
+        game_b = match_result["game_b"]
+        if is_bet_money_a:
+            bet_money_a = bet_money
+            bet_money_b = int(bet_money * ratio_a -
+                              bet_money * ((ratio - 1) / 2.0) - REDUCE_MONEY)
+        else:
+            bet_money_b = bet_money
+            bet_money_a = int(bet_money * ratio_b -
+                              bet_money * ((ratio - 1) / 2.0) - REDUCE_MONEY)
+        print(
+            f"{game_a['type']} 下注金额：{bet_money_a}, {game_b['type']} 下注金额：{bet_money_b}")
         # 语音提醒下注
         os.system('say "匹配成功！"')
         cmd = input("请确认是否自动下注 y/n：")
         if cmd.strip() == "y":
-            game_a = match_result["game_a"]
-            ratio_a = match_result["ratio_a"]
-            game_b = match_result["game_b"]
-            ratio_b = match_result["ratio_b"]
-            # 输入金额 ********************************
-            while True:
-                platform = input("请输入需要下注平台 a/b：")
-                if platform.strip() == 'a':
-                    is_bet_money_a = True
-                else:
-                    is_bet_money_a = False
-                money = input("请输入下注金额：")
-                bet_money = int(money.strip())
-                # 计算下注金额
-                ratio = match_result["ratio"]
-                if is_bet_money_a:
-                    bet_money_a = bet_money
-                    bet_money_b = int(bet_money * ratio_a -
-                                      bet_money * ((ratio - 1) / 2.0 - REDUCE_MONEY))
-                else:
-                    bet_money_b = bet_money
-                    bet_money_a = int(bet_money * ratio_b -
-                                      bet_money * ((ratio - 1) / 2.0 - REDUCE_MONEY))
-                print(
-                    f"{game_a['type']} 下注金额：{bet_money_a}, {game_b['type']} 下注金额：{bet_money_b}")
-                bet_confirm = input("确认是否自动下注 y/n：")
-                if bet_confirm.strip() == 'y':
-                    break
-            # 赔率确认
             pk = match_result["pk"]
             bet = match_result["bet"]
             zd = match_result["zd"]
@@ -109,6 +104,6 @@ while not is_bet:
                 bc_print.print_red(f"{game_b['type']} 下注失败！")
                 continue
     # 睡眠 30 - 60 秒
-    sleep_time = random.randint(60, 120)
+    sleep_time = random.randint(60, 90)
     print(f"间隔时间：{sleep_time}")
     time.sleep(sleep_time)
