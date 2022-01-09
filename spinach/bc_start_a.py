@@ -90,6 +90,12 @@ while not is_bet:
                 if check_confirm_b.strip() != "y":
                     continue
             # 开始自动下注 ***********************************
+            is_bet_ok_b = pandaBC.auto_bet(game_b, iszd_b, bet_money_b)
+            if is_bet_ok_b:
+                bc_print.print_red(f"{game_b['type']} 下注成功！")
+            else:
+                bc_print.print_red(f"{game_b['type']} 下注失败！")
+                continue
             is_bet_ok_a = oneNineBC.auto_bet(bet_money_a)
             if is_bet_ok_a:
                 is_bet = True
@@ -97,13 +103,7 @@ while not is_bet:
             else:
                 bc_print.print_red(f"{game_a['type']} 下注失败！")
                 continue
-            is_bet_ok_b = pandaBC.auto_bet(game_b, iszd_b, bet_money_b)
-            if is_bet_ok_b:
-                bc_print.print_red(f"{game_b['type']} 下注成功！")
-            else:
-                bc_print.print_red(f"{game_b['type']} 下注失败！")
-                continue
     # 睡眠 30 - 60 秒
-    sleep_time = random.randint(60, 90)
+    sleep_time = random.randint(30, 60)
     print(f"间隔时间：{sleep_time}")
     time.sleep(sleep_time)
