@@ -34,6 +34,7 @@ def print_match_result(match_result):
     # 打印 game_a 信息
     game_a = match_result["game_a"]
     type_a = game_a["type"]
+    time_a = game_a["time"]
     ls_a = game_a["league_name"]
     team_a_1 = game_a["team_name_1"]
     team_a_2 = game_a["team_name_2"]
@@ -43,10 +44,11 @@ def print_match_result(match_result):
     else:
         zk_a = "客"
     ratio_a = match_result["ratio_a"]
-    print_red(f"{type_a} -》{ls_a} -》{team_a_1} : {team_a_2} -》{pk} {bet_type} ({zk_a}) : {ratio_a}")
+    print_red(f"{type_a} -》{time_a} {ls_a} -》{team_a_1} : {team_a_2} -》{pk} {bet_type} ({zk_a}) : {ratio_a}")
     # 打印 game_b 信息
     game_b = match_result["game_b"]
     type_b = game_b["type"]
+    time_b = game_b["time"]
     ls_b = game_b["league_name"]
     team_b_1 = game_b["team_name_1"]
     team_b_2 = game_b["team_name_2"]
@@ -56,4 +58,4 @@ def print_match_result(match_result):
     else:
         zk_b = "客"
     ratio_b = match_result["ratio_b"]
-    print_red(f"{type_b} -》{ls_b} -》{team_b_1} : {team_b_2} -》{pk} {bet_type} ({zk_b}) : {ratio_b}")
+    print_red(f"{type_b} -》{time_b} {ls_b} -》{team_b_1} : {team_b_2} -》{pk} {bet_type} ({zk_b}) : {ratio_b}")

@@ -3,6 +3,7 @@ from dic_ob import OBDic
 import requests
 import json
 from config import USER_AUTH_OB
+import time
 
 # 用户身份验证。接口中 request_headers 中的 requestId 字段
 USER_AUTH = USER_AUTH_OB
@@ -171,6 +172,10 @@ class PandaBC(BaseBC):
                 continue
             # print str(ob_sport).decode('unicode-escape')
             sport_game['type'] = self.bc_type
+            # 获取并转换比赛时间，格式如 2013-10-10 23:40:00 (原数据为时间戳 1642080000000)
+            timeStamp = float(ob_sport['mgt'])
+            timeArray = time.localtime(timeStamp / 1000.0)
+            sport_game['time'] = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
             ob_team_id = get_ob_team_ids(ob_sport)
             sport_game['league_name'] = ob_sport['tn']
             sport_game['team_id_1'] = ob_team_id[0]

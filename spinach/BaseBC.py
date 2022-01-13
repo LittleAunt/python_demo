@@ -21,6 +21,7 @@ class BaseBC:
     
     type = ""  # 平台类型
     league_name = ""  # 联赛名称
+    time = "" # 比赛时间
     team_id_1 = ""  # 前队 id
     team_id_2 = ""  # 后队 id
     team_name_1 = ""  # 前队名称

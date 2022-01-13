@@ -4,6 +4,7 @@ import requests
 from config import USER_SESSION_19
 from config import USER_AUTH_19
 import json
+import time
 
 
 # 获取19比赛队伍 ID
@@ -84,6 +85,18 @@ class OneNineBC(BaseBC):
             for bs in ls[12]:
                 sport_game = {}
                 sport_game['type'] = self.bc_type
+                # 获取并转换比赛时间，格式如 2013-10-10 23:40:00 （原数据为 2022-01-13T12:30:00.000Z，因为时区问题需要再加8）
+                # 先转换成 2013-10-10 23:40:00 格式时间
+                time_str = bs[3]
+                time_str = time_str.split('.')[0]
+                time_str = time_str.replace('T', ' ')
+                # 再转换成时间戳加 8 小时
+                timeArray = time.strptime(time_str, "%Y-%m-%d %H:%M:%S")
+                timeStamp = int(time.mktime(timeArray))
+                real_timeStamp = timeStamp + 28800
+                # 再转 2013-10-10 23:40:00 格式时间
+                timeArray = time.localtime(real_timeStamp)
+                sport_game['time'] = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
                 sport_game['league_name'] = league_name
                 sport_game['team_name_1'] = bs[1][0][1]['ZH'].strip()
                 sport_game['team_name_2'] = bs[1][1][1]['ZH'].strip()
