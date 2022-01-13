@@ -1,4 +1,5 @@
 from config import TARGET_ODDS, ONLY_WIN_OR_LOSE
+import re
 
 match_result_list = [] # 匹配成功的结果列表
 """
@@ -83,6 +84,37 @@ def cal_game(game1, game2):
         game2_bc_dx = game2['bc_dx_list']
         compare_pk(game1, game2, 'bc_dx_list', game1_bc_dx, game2_bc_dx)
         
+# 模糊匹配
+def fuzzy_matching2(array1, array2):
+    index = -1
+    count = 0
+    for a1 in array1:
+        if a1 in array2:
+            c_index = array2.index(a1)
+            if c_index > index:
+                index = c_index
+                count += 1
+    return count
+
+# 模糊匹配，两个字符串之间进行单个字符对比，如果长度小的字符的一半对比成功，则默认相等
+# 1.提取中文；2.大于或等于一半的字符；3.至少两个字符
+def fuzzy_matching(str1, str2, accuracy):
+    # 提取中文字符，只对比中文字符
+    strArray1 = re.findall(r"[\u4e00-\u9fa5]", str1)
+    strArray2 = re.findall(r"[\u4e00-\u9fa5]", str2)
+    # 遍历短的数组
+    if len(strArray1) > len(strArray2):
+        match_count = fuzzy_matching2(strArray2, strArray1)
+        if match_count > 1 and match_count >= len(strArray2) * accuracy:
+            print(f'模糊匹配成功 {str1}, {str2}')
+            return True
+    else:
+        match_count = fuzzy_matching2(strArray1, strArray2)
+        if match_count > 1 and match_count >= len(strArray1) * accuracy:
+            print(f'模糊匹配成功 {str1}, {str2}')
+            return True 
+    return False
+        
 def cal_odds(game_a_list, game_b_list):
     print("**********************************************************************")
     match_count = 0 # 共匹配了多少场
@@ -103,6 +135,13 @@ def cal_odds(game_a_list, game_b_list):
             elif (name_a_team_1 == name_b_team_1 or name_a_team_2 == name_b_team_2):
                 matched = True
                 break
+            # 模糊匹配，联赛比配成功，且比赛名匹配成功
+            league_name_a = game_a["league_name"].replace('联赛', '').replace('杯', '').replace('级', '').replace('級', '')
+            league_name_b = game_b["league_name"].replace('联赛', '').replace('杯', '').replace('级', '').replace('級', '')
+            if fuzzy_matching(league_name_a, league_name_b, 0.75):
+                if fuzzy_matching(name_a_team_1, name_b_team_1, 0.5) or fuzzy_matching(name_a_team_2, name_b_team_2, 0.5):
+                    matched = True
+                    break
         if matched:
             cal_game(game_a, game_b)
             match_count = match_count + 1

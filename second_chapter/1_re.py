@@ -1,7 +1,7 @@
 import re
 
-list = re.findall(r"\d+", "my phone number is 11010,12345")
-print(list)
+list = re.findall(r"[\u4e00-\u9fa5]", "my phone number我们 is 11010,大家啊12345")
+print(list.index('好'))
 
 # 迭代器,效率比上面高
 it = re.finditer(r"\d+", "my phone number is 11010,12345")
