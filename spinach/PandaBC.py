@@ -3,6 +3,7 @@ from dic_ob import OBDic
 import requests
 import json
 from config import USER_AUTH_OB
+from config import MODE_GQ
 import time
 
 # 用户身份验证。接口中 request_headers 中的 requestId 字段
@@ -134,29 +135,32 @@ class PandaBC(BaseBC):
     # 解析分类 ids，用来进行比赛请求参数
 
     def parseMids(self, data):
-        nolivedata = data['data']['nolivedata']
-        print(f"一共获取到 {len(nolivedata)} 个联赛")
+        if MODE_GQ:
+            midsdata = data['data']['livedata']
+        else:
+            midsdata = data['data']['nolivedata']
+        print(f"一共获取到 {len(midsdata)} 个联赛")
         midsStr = ""
         count = 0
         start_index = 0
-        if len(nolivedata) > self.MAX_COUNT:
+        if len(midsdata) > self.MAX_COUNT:
             if self.flag:
                 count = self.MAX_COUNT
             else:
-                count = len(nolivedata)
+                count = len(midsdata)
                 start_index = self.MAX_COUNT
         else:
-            count = len(nolivedata)
+            count = len(midsdata)
         # 取反
         self.flag = ~self.flag
         # 拼接需要请求的联赛 id
         for i in range(start_index, count):
-            if nolivedata[i]["tn"] == "梦幻对决":
+            if midsdata[i]["tn"] == "梦幻对决":
                 print(f"index:{i}, 梦幻对决 无效比赛")
                 continue
-            midsStr = midsStr + ',' + nolivedata[i]['mids']
+            midsStr = midsStr + ',' + midsdata[i]['mids']
         print(f"拼接{start_index} -> {count} 个联赛 id")
-        # for sport in nolivedata:
+        # for sport in midsdata:
         #     midsStr = midsStr + ',' + sport['mids']
         return midsStr.replace(",", "", 1)
 

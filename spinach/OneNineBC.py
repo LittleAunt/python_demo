@@ -3,6 +3,7 @@ from dic_nine_wb import NineDicWB
 import requests
 from config import USER_SESSION_19
 from config import USER_AUTH_19
+from config import MODE_GQ
 import json
 import time
 
@@ -54,7 +55,14 @@ def get_nine_dx(nine):
 class OneNineBC(BaseBC):
 
     bc_type = "19"
-    url = "https://prod20063.1x2aaa.com/api/eventlist/asia/leagues/1/prematch"
+    # 滚球
+    url_gq = "https://prod20063.1x2aaa.com/api/eventlist/asia/leagues/1/live"
+    # 今日
+    url_jr = "https://prod20063.1x2aaa.com/api/eventlist/asia/leagues/1/prematch"
+    if MODE_GQ:
+        url = url_gq
+    else:
+        url = url_jr
     headers = {
         "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.55 Safari/537.36",
         "session": USER_SESSION_19,

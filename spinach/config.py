@@ -4,6 +4,9 @@ USER_AUTH_19 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsYW5ndWFnZUNvZGUiOiJ6aCI
 TARGET_ODDS = 1.0
 ONLY_WIN_OR_LOSE = False # 只匹配绝对输赢的盘口（ 1 bet 保险）
 REDUCE_MONEY = 0 # 计算出的对应金额应少与实际金额多少（ 1bet 保险）
-# 将时间打印出来
-# 根据时间的补充对比，可实现自动下单
+MODE_GQ = False # 是否匹配滚球， False 是今日
+
+
+
+
 # 最大赔率和计算赔率较比
