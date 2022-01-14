@@ -106,12 +106,12 @@ def fuzzy_matching(str1, str2, accuracy):
     if len(strArray1) > len(strArray2):
         match_count = fuzzy_matching2(strArray2, strArray1)
         if match_count > 1 and match_count >= len(strArray2) * accuracy:
-            print(f'模糊匹配成功 {str1}, {str2}')
+            # print(f'模糊匹配成功 {str1}, {str2}')
             return True
     else:
         match_count = fuzzy_matching2(strArray1, strArray2)
         if match_count > 1 and match_count >= len(strArray1) * accuracy:
-            print(f'模糊匹配成功 {str1}, {str2}')
+            # print(f'模糊匹配成功 {str1}, {str2}')
             return True 
     return False
         
@@ -123,6 +123,8 @@ def cal_odds(game_a_list, game_b_list):
         # 是否匹配对应比赛
         matched = False
         for game_b in game_b_list:
+            if game_a['time'] != game_b['time']:
+                continue
             # 优化名称，剔除不利字符
             name_a_team_1 = game_a['team_name_1'].replace(' ', '').replace("[", "(").replace("]", ")").replace("女", "女")
             name_a_team_2 = game_a['team_name_2'].replace(' ', '').replace("[", "(").replace("]", ")").replace("女", "女")
