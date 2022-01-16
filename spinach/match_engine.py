@@ -37,7 +37,8 @@ def compare_pk(game1, game2, pk, list1, list2):
         ratio1 = float(list1_values[0]) * float(list2_values[1])
         ratio2 = float(list1_values[1]) * float(list2_values[0])
         match_result = {}
-        if ratio1 >= TARGET_ODDS:
+        # 不仅赔率乘积要大于预期，且双方的赔率都不能小于 0.5（低于0.5的基本比赛快结束，下注易失败）
+        if ratio1 >= TARGET_ODDS and float(list1_values[0]) >= 0.5 and float(list2_values[1]) >= 0.5:
             match_result["game_a"] = game1
             match_result["game_b"] = game2
             match_result["pk"] = pk
@@ -48,7 +49,7 @@ def compare_pk(game1, game2, pk, list1, list2):
             match_result["ratio_a"] = float(list1_values[0])
             match_result["ratio_b"] = float(list2_values[1])
             match_result_list.append(match_result)
-        if ratio2 >= TARGET_ODDS:
+        if ratio2 >= TARGET_ODDS and float(list1_values[1]) >= 0.5 and float(list2_values[0]) >= 0.5:
             match_result["game_a"] = game1
             match_result["game_b"] = game2
             match_result["pk"] = pk
@@ -123,6 +124,8 @@ def cal_odds(game_a_list, game_b_list):
         # 是否匹配对应比赛
         matched = False
         for game_b in game_b_list:
+            if game_a['team_name_1'] == '塞维利亚 [女]':
+                continue
             if game_a['time'] != game_b['time']:
                 continue
             # 优化名称，剔除不利字符
@@ -140,8 +143,8 @@ def cal_odds(game_a_list, game_b_list):
             # 模糊匹配，联赛比配成功，且比赛名匹配成功
             league_name_a = game_a["league_name"].replace('联赛', '').replace('杯', '').replace('级', '').replace('級', '')
             league_name_b = game_b["league_name"].replace('联赛', '').replace('杯', '').replace('级', '').replace('級', '')
-            if fuzzy_matching(league_name_a, league_name_b, 0.75):
-                if fuzzy_matching(name_a_team_1, name_b_team_1, 0.5) or fuzzy_matching(name_a_team_2, name_b_team_2, 0.5):
+            if fuzzy_matching(league_name_a, league_name_b, 1):
+                if fuzzy_matching(name_a_team_1, name_b_team_1, 0.7) or fuzzy_matching(name_a_team_2, name_b_team_2, 0.7):
                     matched = True
                     break
         if matched:

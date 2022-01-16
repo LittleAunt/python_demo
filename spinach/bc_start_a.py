@@ -70,11 +70,11 @@ while not is_bet:
                 iszd_a = True
             else:
                 iszd_a = False
-            is_ok_a = oneNineBC.check_bet(game_a, pk, bet, iszd_a, ratio_a)
+            is_ok_a = oneNineBC.check_bet(game_a, pk, bet, iszd_a, ratio_a, bet_money_a)
             if is_ok_a:
                 bc_print.print_red(f"{game_a['type']} 赔率 OK!")
             else:
-                check_confirm_a = input("赔率已改变! 是否继续下注 y/n：")
+                check_confirm_a = input("赔率核对失败! 是否继续下注 y/n：")
                 if check_confirm_a.strip() != "y":
                     continue
             # game_b 核实赔率 **********************************
@@ -86,7 +86,7 @@ while not is_bet:
             if is_ok_b:
                 bc_print.print_red(f"{game_b['type']} 赔率 OK!")
             else:
-                check_confirm_b = input("赔率已改变! 是否继续下注 y/n：")
+                check_confirm_b = input("赔率核对失败! 是否继续下注 y/n：")
                 if check_confirm_b.strip() != "y":
                     continue
             # 开始自动下注 ***********************************
@@ -101,8 +101,19 @@ while not is_bet:
                 is_bet = True
                 bc_print.print_red(f"{game_a['type']} 下注成功！")
             else:
-                bc_print.print_red(f"{game_a['type']} 下注失败！")
-                continue
+                # 下注失败，再尝试一次下注
+                again_confirm_a = input("下注失败! 是否重新下注 y/n：")
+                if again_confirm_a.strip() == "y":
+                    again_is_ok_a = oneNineBC.check_bet(game_a, pk, bet, iszd_a, ratio_a, bet_money_a)
+                    again_check_confirm_a = input("是否继续下注 y/n：")
+                    if again_check_confirm_a.strip() == "y":
+                        again_is_bet_ok_a = oneNineBC.auto_bet(bet_money_a)
+                        if again_is_bet_ok_a:
+                            bc_print.print_red(f"{game_a['type']} 下注成功！")
+                        else:
+                            bc_print.print_red(f"{game_a['type']} 下注失败！")
+                else:
+                    continue
     # 睡眠 30 - 60 秒
     sleep_time = random.randint(30, 60)
     print(f"间隔时间：{sleep_time}")

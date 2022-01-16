@@ -6,6 +6,7 @@ from config import USER_AUTH_19
 from config import MODE_GQ
 import json
 import time
+import bc_print
 
 
 # 获取19比赛队伍 ID
@@ -133,9 +134,9 @@ class OneNineBC(BaseBC):
         return self.game_list
 
     # 核实赔率是否有变动
-    def check_bet(self, game, pk, bet, iszd, ratio):
+    def check_bet(self, game, pk, bet, iszd, ratio, money):
         print("**********************************************************************")
-        print(f"{game['type']} 平台赔率: {ratio} 核对......")
+        print(f"{game['type']} 平台赔率: {ratio} 核对...... {bet}")
         # 获取下注详情信息
         url_bet_detail = "https://prod20063.1x2aaa.com/api/betslip/betslip"
         self.headers_bet = {
@@ -172,7 +173,20 @@ class OneNineBC(BaseBC):
         # 提取字段。判断赔率是否改变
         self.resp_json_bet = resp_bet_detail.json()
         self.trueOdds = self.resp_json_bet[0]["market"]["Changeset"]["Selection"]["TrueOdds"]
-        print(f"获取最新赔率: {self.trueOdds}")
+        # 最大下注额度
+        self.maxStake = round(8.4360248 * self.resp_json_bet[0]["market"]["Changeset"]
+                         ["Selection"]["Settings"]["MaxWin"] / (self.trueOdds - 1), 2)
+        if money > self.maxStake:
+            bc_print.print_red(f"最大下注金额：{self.maxStake},预下注金额：{money},无法下注")
+            return False
+        # 确认盘口是否正确,存在获取到的盘口不是想要的盘口结果，吃了大亏
+        self.points = self.resp_json_bet[0]["market"]["Changeset"]["Selection"]["Points"]
+        print(f"盘口：{self.points}")
+        if abs(bet) != abs(self.points):
+            bc_print.print_red(f"获取数据出错，盘口不一致.")
+            print(self.resp_json_bet)
+            return False
+        # print(f"获取最新赔率: {self.trueOdds}")
         hk_odds = round(self.trueOdds - 1.0, 2)
         print(f"获取最新赔率hk: {hk_odds}")
         if ratio == hk_odds:
@@ -185,10 +199,7 @@ class OneNineBC(BaseBC):
         print("**********************************************************************")
         url_stake = "https://prod20063.1x2aaa.com/api/betslip/bets"
         # data 配置
-        displayOdds = self.resp_json_bet[0]["market"]["Changeset"]["Selection"]["DisplayOdds"]
-        points = self.resp_json_bet[0]["market"]["Changeset"]["Selection"]["Points"]
-        maxStake = round(8.4360248 * self.resp_json_bet[0]["market"]["Changeset"]
-                         ["Selection"]["Settings"]["MaxWin"] / (self.trueOdds - 1), 2)
+        displayOdds = self.resp_json_bet[0]["market"]["Changeset"]["Selection"]["DisplayOdds"]     
         stake = money  # 下注额*********
         potentialReturns = str(round(self.trueOdds * stake, 2))
         selectionName = self.resp_json_bet[0]["market"]["Changeset"]["Selection"]["BetslipLine"]
@@ -200,7 +211,7 @@ class OneNineBC(BaseBC):
                 "id": self.selectionId,
                 "trueOdds": self.trueOdds,
                 "displayOdds": displayOdds,
-                "points": points
+                "points": self.points
             }],
             "trueOdds": self.trueOdds,
             "displayOdds": displayOdds,
@@ -208,7 +219,7 @@ class OneNineBC(BaseBC):
             "comboSize": 0,
             "isLive": False,
             "numberOfLines": 1,
-            "maxStake": maxStake,
+            "maxStake": self.maxStake,
             "minStake": 8.44,
             "numberOfBets": 1,
             "stake": stake,
@@ -239,7 +250,8 @@ class OneNineBC(BaseBC):
         resp_stake_json = resp_stake.json()
         resp_stake.close()
         # print(f"下注结果 {resp_stake_json}")
-        if resp_stake_json["status"] == "Open":
+        if "potentialReturns" in resp_stake_json:
+            print(f'返回金额: {resp_stake_json["potentialReturns"]}')
             return True
         else:
             return False

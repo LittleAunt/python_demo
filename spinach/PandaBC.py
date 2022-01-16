@@ -5,6 +5,7 @@ import json
 from config import USER_AUTH_OB
 from config import MODE_GQ
 import time
+import bc_print
 
 # 用户身份验证。接口中 request_headers 中的 requestId 字段
 USER_AUTH = USER_AUTH_OB
@@ -242,22 +243,29 @@ class PandaBC(BaseBC):
                 "sportId": "1"
             }]
         }
-        print(f"注单请求参数 {data_market}")
+        # print(f"注单请求参数 {data_market}")
         # 请求注单详情信息
         resp_market = requests.post(
             url_market, headers=self.headers_mids, data=json.dumps(data_market), verify=False)
         self.resp_market_json = resp_market.json()
         resp_market.close()
         # 核对最新赔率
+        if self.resp_market_json["data"][0]["currentMarket"] == None:
+            print(f"获取currentMarket失败，返回结果：\n{self.resp_market_json}")
+            return False
+        if self.resp_market_json["data"][0]["currentMarket"]["status"] != 0:
+            print(f"盘口status不等于0，返回结果：\n{self.resp_market_json}")
+            return False
         self.odds = self.resp_market_json["data"][0]["currentMarket"]["marketOddsList"][0]["oddsValue"]
         # print(f"注单详情返回 {resp_market_json}")
-        print(f"获取最新赔率: {self.odds}")
+        # print(f"获取最新赔率: {self.odds}")
         hk_odds = round((self.odds - 100000) / 100000.0, 2)
         print(f"获取最新赔率hk: {hk_odds}")
         if ratio == hk_odds:
             return True
         else:
             return False
+        
 
     # 开始下注
     def auto_bet(self, game, iszd, money):
@@ -322,4 +330,5 @@ class PandaBC(BaseBC):
         if resp_bet_json["msg"] == "成功":
             return True
         else:
+            print(f"返回结果: \n{resp_bet_json}")
             return False
