@@ -124,8 +124,8 @@ def cal_odds(game_a_list, game_b_list):
         # 是否匹配对应比赛
         matched = False
         for game_b in game_b_list:
-            if game_a['team_name_1'] == '塞维利亚 [女]':
-                continue
+            # if game_a['team_name_1'] == '塞维利亚 [女]':
+            #     continue
             if game_a['time'] != game_b['time']:
                 continue
             # 优化名称，剔除不利字符

@@ -179,7 +179,7 @@ class OneNineBC(BaseBC):
         if money > self.maxStake:
             bc_print.print_red(f"最大下注金额：{self.maxStake},预下注金额：{money},无法下注")
             return False
-        # 确认盘口是否正确,存在获取到的盘口不是想要的盘口结果，吃了大亏
+        # 确认盘口是否正确,存在获取到的盘口不是想要的盘口结果，吃了大亏 *********************************
         self.points = self.resp_json_bet[0]["market"]["Changeset"]["Selection"]["Points"]
         print(f"盘口：{self.points}")
         if abs(bet) != abs(self.points):
