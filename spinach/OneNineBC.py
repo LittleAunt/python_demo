@@ -4,6 +4,7 @@ import requests
 from config import USER_SESSION_19
 from config import USER_AUTH_19
 from config import MODE_GQ
+from config import DOMAIN_19
 import json
 import time
 import bc_print
@@ -57,9 +58,9 @@ class OneNineBC(BaseBC):
 
     bc_type = "19"
     # 滚球
-    url_gq = "https://prod20063.1x2aaa.com/api/eventlist/asia/leagues/1/live"
+    url_gq = f"https://{DOMAIN_19}/api/eventlist/asia/leagues/1/live"
     # 今日
-    url_jr = "https://prod20063.1x2aaa.com/api/eventlist/asia/leagues/1/prematch"
+    url_jr = f"https://{DOMAIN_19}/api/eventlist/asia/leagues/1/prematch"
     if MODE_GQ:
         url = url_gq
     else:
@@ -68,7 +69,7 @@ class OneNineBC(BaseBC):
         "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.55 Safari/537.36",
         "session": USER_SESSION_19,
         "accept": "application/json",
-        "accept-encoding": "gzip, deflate, br",
+        "accept-encoding": "gzip, deflate", # 乐动平台默认是 br 编码，requests 不支持该编码，解决方案看 https://blog.csdn.net/weixin_40414337/article/details/88561066
         "accept-language": "zh-CN,zh;q=0.9,en;q=0.8",
         "authorization": USER_AUTH_19
     }
@@ -138,7 +139,7 @@ class OneNineBC(BaseBC):
         print("**********************************************************************")
         print(f"{game['type']} 平台赔率: {ratio} 核对...... {bet}")
         # 获取下注详情信息
-        url_bet_detail = "https://prod20063.1x2aaa.com/api/betslip/betslip"
+        url_bet_detail = f"https://{DOMAIN_19}/api/betslip/betslip"
         self.headers_bet = {
             "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.55 Safari/537.36",
             "session": USER_SESSION_19,
@@ -147,7 +148,7 @@ class OneNineBC(BaseBC):
             "accept-encoding": "gzip, deflate, br",
             "accept-language": "zh-CN,zh;q=0.9,en;q=0.8",
             "authorization": USER_AUTH_19,
-            "referer": f"https://prod20063.1x2aaa.com/betslip/?sse=false&authorization={USER_AUTH_19}"
+            "referer": f"https://{DOMAIN_19}/betslip/?sse=false&authorization={USER_AUTH_19}"
         }
         # 提取 selectionId，为19比赛对应赔率的 id
         self.selectionId = ""
@@ -197,7 +198,7 @@ class OneNineBC(BaseBC):
     # 开始下注
     def auto_bet(self, money):
         print("**********************************************************************")
-        url_stake = "https://prod20063.1x2aaa.com/api/betslip/bets"
+        url_stake = f"https://{DOMAIN_19}/api/betslip/bets"
         # data 配置
         displayOdds = self.resp_json_bet[0]["market"]["Changeset"]["Selection"]["DisplayOdds"]     
         stake = money  # 下注额*********
@@ -235,7 +236,7 @@ class OneNineBC(BaseBC):
                 "device": "desktop",
                 "isTablet": False,
                 "bettingView": "Asian View",
-                "fullURL": "https://prod20063.1x2aaa.com/zh/asian-view/today/%25E8%25B6%25B3%25E7%2590%2583",
+                "fullURL": f"https://{DOMAIN_19}/zh/asian-view/today/%25E8%25B6%25B3%25E7%2590%2583",
                 "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.55 Safari/537.36"
             },
             "selectionsNames": [{
@@ -254,4 +255,5 @@ class OneNineBC(BaseBC):
             print(f'返回金额: {resp_stake_json["potentialReturns"]}')
             return True
         else:
+            print(f"返回结果: \n{resp_stake_json}")
             return False
