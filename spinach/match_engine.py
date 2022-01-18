@@ -1,6 +1,11 @@
 from config import TARGET_ODDS, ONLY_WIN_OR_LOSE
 import re
 
+# 联赛名称匹配精度
+ACCURACY_LEAGUE = 1
+# 比赛队伍名称匹配精度
+ACCURACY_TEAM = 0.6
+
 match_result_list = [] # 匹配成功的结果列表
 """
 匹配的结果字段
@@ -143,8 +148,8 @@ def cal_odds(game_a_list, game_b_list):
             # 模糊匹配，联赛比配成功，且比赛名匹配成功
             league_name_a = game_a["league_name"].replace('联赛', '').replace('杯', '').replace('级', '').replace('級', '')
             league_name_b = game_b["league_name"].replace('联赛', '').replace('杯', '').replace('级', '').replace('級', '')
-            if fuzzy_matching(league_name_a, league_name_b, 1):
-                if fuzzy_matching(name_a_team_1, name_b_team_1, 0.7) or fuzzy_matching(name_a_team_2, name_b_team_2, 0.7):
+            if fuzzy_matching(league_name_a, league_name_b, ACCURACY_LEAGUE):
+                if fuzzy_matching(name_a_team_1, name_b_team_1, ACCURACY_TEAM) or fuzzy_matching(name_a_team_2, name_b_team_2, ACCURACY_TEAM):
                     matched = True
                     break
         if matched:

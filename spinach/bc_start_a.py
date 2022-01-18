@@ -49,12 +49,10 @@ while not is_bet:
         game_b = match_result["game_b"]
         if is_bet_money_a:
             bet_money_a = bet_money
-            bet_money_b = int(bet_money * ratio_a -
-                              bet_money * ((ratio - 1) / 2.0) - REDUCE_MONEY)
+            bet_money_b = int(bet_money_a * (ratio_a + 1) / (ratio_b + 1)) - REDUCE_MONEY
         else:
             bet_money_b = bet_money
-            bet_money_a = int(bet_money * ratio_b -
-                              bet_money * ((ratio - 1) / 2.0) - REDUCE_MONEY)
+            bet_money_a = int(bet_money_b * (ratio_b + 1) / (ratio_a + 1)) - REDUCE_MONEY
         print(
             f"{game_a['type']} 下注金额：{bet_money_a}, {game_b['type']} 下注金额：{bet_money_b}")
         # 语音提醒下注
