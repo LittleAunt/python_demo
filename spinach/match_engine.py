@@ -2,7 +2,7 @@ from config import TARGET_ODDS, ONLY_WIN_OR_LOSE
 import re
 
 # 联赛名称匹配精度
-ACCURACY_LEAGUE = 1
+ACCURACY_LEAGUE = 0.8
 # 比赛队伍名称匹配精度
 ACCURACY_TEAM = 0.6
 
@@ -69,6 +69,8 @@ def compare_pk(game1, game2, pk, list1, list2):
 
 # 计算两个平台比赛的赔率
 def cal_game(game1, game2):
+    # print(game1)
+    # print(game2)
     # 全场让球赔率计算
     if 'qc_rq_list' in game1 and 'qc_rq_list' in game2:
         game1_qc_rq = game1['qc_rq_list']

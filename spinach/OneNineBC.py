@@ -119,10 +119,16 @@ class OneNineBC(BaseBC):
                 sport_game['bc_rq_list'] = {}
                 sport_game['bc_dx_list'] = {}
                 # 全场让球和大小
+                if MODE_GQ:
+                    flag_qc_rq = 'HC39'
+                    flag_qc_dx = 'OU39'
+                else:
+                    flag_qc_rq = 'HC0'
+                    flag_qc_dx = 'OU0'
                 for pk in bs[8][3]:
-                    if pk[3][0] == 'HC0':  # 全场让球
+                    if pk[3][0] == flag_qc_rq:  # 全场让球
                         sport_game['qc_rq_list'] = get_nine_rq(pk[7])
-                    elif pk[3][0] == 'OU0':  # 全场大小
+                    elif pk[3][0] == flag_qc_dx:  # 全场大小
                         sport_game['qc_dx_list'] = get_nine_dx(pk[7])
                 # 半场让球和大小
                 for pk in bs[8][2]:
@@ -131,7 +137,7 @@ class OneNineBC(BaseBC):
                     elif pk[3][0] == 'OU1':  # 半场大小
                         sport_game['bc_dx_list'] = get_nine_dx(pk[7])
                 self.game_list.append(sport_game)
-                # print str(sport_game).decode('unicode-escape')
+                print(sport_game)
         return self.game_list
 
     # 核实赔率是否有变动
