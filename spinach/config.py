@@ -1,4 +1,4 @@
-TARGET_ODDS = 1 # 赔率
+TARGET_ODDS = 1.0 # 赔率
 MODE_GQ = True # 是否匹配滚球， False 是今日
 # ob 接口auth
 USER_AUTH_OB = "6d8d4bb7f675d9f8b83ba04771c07e656ece8a05"

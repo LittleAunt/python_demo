@@ -143,7 +143,7 @@ class OneNineBC(BaseBC):
     # 核实赔率是否有变动
     def check_bet(self, game, pk, bet, iszd, ratio, money):
         print("**********************************************************************")
-        print(f"{game['type']} 平台赔率: {ratio} 核对...... {bet}")
+        print(f"{game['type']} 平台赔率: {ratio} 核对...... 盘口：{bet}")
         # 获取下注详情信息
         url_bet_detail = f"https://{DOMAIN_19}/api/betslip/betslip"
         self.headers_bet = {
@@ -186,10 +186,14 @@ class OneNineBC(BaseBC):
         if money > self.maxStake:
             bc_print.print_red(f"最大下注金额：{self.maxStake},预下注金额：{money},无法下注")
             return False
-        # 确认盘口是否正确,存在获取到的盘口不是想要的盘口结果，吃了大亏 *********************************
+        # 确认盘口是否正确,存在selectionId相同但盘口已经发生变化的情况，吃了大亏 *********************************
         self.points = self.resp_json_bet[0]["market"]["Changeset"]["Selection"]["Points"]
-        print(f"盘口：{self.points}")
-        if abs(bet) != abs(self.points):
+        if self.selectionId[len(self.selectionId) - 3] == 'A': # 代表客队
+            cur_bet = -1 * self.points
+        else:
+            cur_bet = self.points
+        print(f"盘口：{cur_bet}")
+        if bet != cur_bet:
             bc_print.print_red(f"获取数据出错，盘口不一致.")
             print(self.resp_json_bet)
             return False
