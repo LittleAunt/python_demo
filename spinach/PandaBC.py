@@ -201,8 +201,8 @@ class PandaBC(BaseBC):
                 sport_game['qc_dx_list'] = {}
                 sport_game['bc_rq_list'] = {}
                 sport_game['bc_dx_list'] = {}
-            # print str(sport_game).decode('unicode-escape')
             self.game_list.append(sport_game)
+            # print(sport_game)
         return self.game_list
 
     # 核实赔率是否有变动

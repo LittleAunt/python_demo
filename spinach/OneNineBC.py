@@ -44,7 +44,7 @@ def get_nine_dx(nine):
     # print nine
     nine_dx = {}
     for zd in nine:
-        if zd[9]['ZH'] == '大' and zd[5] != 0:
+        if zd[9]['ZH'] == '大于' and zd[5] != 0:
             for kd in nine:
                 if kd[9]['ZH'] == '小于' and zd[13] == kd[13]:
                     key = zd[13]
@@ -137,7 +137,7 @@ class OneNineBC(BaseBC):
                     elif pk[3][0] == 'OU1':  # 半场大小
                         sport_game['bc_dx_list'] = get_nine_dx(pk[7])
                 self.game_list.append(sport_game)
-                print(sport_game)
+                # print(sport_game) ******************** 需时常验证获取的数据还对不对，全不全，存在匹配字段变化的情况
         return self.game_list
 
     # 核实赔率是否有变动
