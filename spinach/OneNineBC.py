@@ -77,7 +77,9 @@ class OneNineBC(BaseBC):
     # 爬取数据
     def crawling(self):
         # 开启 charles 代理的情况下需要 verify=False，否则会报错
+        print(f'crawling start {time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}')
         resp = requests.get(self.url, headers=self.headers, verify=False)
+        print(f'crawling end {time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}')
         resp.close()
         return self.parse(resp.json())
 
@@ -174,13 +176,24 @@ class OneNineBC(BaseBC):
         url_bet_detail_data_list = []
         url_bet_detail_data_list.append(url_bet_detail_data)
         print(f"获取下注详情信息 selectionId = {self.selectionId}")
+        print(f'check start {time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}')
         resp_bet_detail = requests.post(url_bet_detail, headers=self.headers_bet, data=json.dumps(
             url_bet_detail_data_list), verify=False)
+        print(f'check end {time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}')
         resp_bet_detail.close()
         # 提取字段。判断赔率是否改变
         self.resp_json_bet = resp_bet_detail.json()
         self.trueOdds = self.resp_json_bet[0]["market"]["Changeset"]["Selection"]["TrueOdds"]
-        # 最大下注额度
+        # 确认盘口是否还可正常下注
+        is_removed = self.resp_json_bet[0]["market"]["Changeset"]["IsRemoved"]
+        if is_removed:
+            bc_print.print_red(f"is_removed：true, 无法下注")
+            return False
+        is_suspended = self.resp_json_bet[0]["market"]["Changeset"]["IsSuspended"]
+        if is_suspended:
+            bc_print.print_red(f"is_suspended：true, 无法下注") # 该情况多见，盘口临时锁定
+            return False
+        # 确认是否满足最大下注额度
         self.maxStake = round(8.4360248 * self.resp_json_bet[0]["market"]["Changeset"]
                          ["Selection"]["Settings"]["MaxWin"] / (self.trueOdds - 1), 2)
         if money > self.maxStake:
