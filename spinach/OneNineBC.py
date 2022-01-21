@@ -69,6 +69,7 @@ class OneNineBC(BaseBC):
         "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.55 Safari/537.36",
         "session": USER_SESSION_19,
         "accept": "application/json",
+        "connection": "keep-alive",
         "accept-encoding": "gzip, deflate", # 乐动平台默认是 br 编码，requests 不支持该编码，解决方案看 https://blog.csdn.net/weixin_40414337/article/details/88561066
         "accept-language": "zh-CN,zh;q=0.9,en;q=0.8",
         "authorization": USER_AUTH_19
@@ -78,7 +79,7 @@ class OneNineBC(BaseBC):
     def crawling(self):
         # 开启 charles 代理的情况下需要 verify=False，否则会报错
         print(f'crawling start {time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}')
-        resp = requests.get(self.url, headers=self.headers, verify=False)
+        resp = requests.get(self.url, headers=self.headers, timeout=(5, 5) , verify=False)
         print(f'crawling end {time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}')
         resp.close()
         return self.parse(resp.json())
@@ -139,7 +140,7 @@ class OneNineBC(BaseBC):
                     elif pk[3][0] == 'OU1':  # 半场大小
                         sport_game['bc_dx_list'] = get_nine_dx(pk[7])
                 self.game_list.append(sport_game)
-                # print(sport_game) ******************** 需时常验证获取的数据还对不对，全不全，存在匹配字段变化的情况
+                # print(sport_game) # ******************** 需时常验证获取的数据还对不对，全不全，存在匹配字段变化的情况
         return self.game_list
 
     # 核实赔率是否有变动
