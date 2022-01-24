@@ -74,14 +74,17 @@ class OneNineBC(BaseBC):
         "accept-language": "zh-CN,zh;q=0.9,en;q=0.8",
         "authorization": USER_AUTH_19
     }
+    # keep-alive
+    session = requests.session()
+    # session.headers = headers
 
     # 爬取数据
     def crawling(self):
         # 开启 charles 代理的情况下需要 verify=False，否则会报错
         print(f'crawling start {time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}')
-        resp = requests.get(self.url, headers=self.headers, timeout=(5, 5) , verify=False)
+        resp = self.session.get(self.url, headers=self.headers, verify=False)
         print(f'crawling end {time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}')
-        resp.close()
+        # resp.close()
         return self.parse(resp.json())
 
      # 解析数据
@@ -178,10 +181,10 @@ class OneNineBC(BaseBC):
         url_bet_detail_data_list.append(url_bet_detail_data)
         print(f"获取下注详情信息 selectionId = {self.selectionId}")
         print(f'check start {time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}')
-        resp_bet_detail = requests.post(url_bet_detail, headers=self.headers_bet, data=json.dumps(
+        resp_bet_detail = self.session.post(url_bet_detail, headers=self.headers_bet, data=json.dumps(
             url_bet_detail_data_list), verify=False)
         print(f'check end {time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}')
-        resp_bet_detail.close()
+        # resp_bet_detail.close()
         # 提取字段。判断赔率是否改变
         self.resp_json_bet = resp_bet_detail.json()
         self.trueOdds = self.resp_json_bet[0]["market"]["Changeset"]["Selection"]["TrueOdds"]
@@ -189,6 +192,10 @@ class OneNineBC(BaseBC):
         is_removed = self.resp_json_bet[0]["market"]["Changeset"]["IsRemoved"]
         if is_removed:
             bc_print.print_red(f"is_removed：true, 无法下注")
+            return False
+        is_removed_1 = self.resp_json_bet[0]["market"]["Changeset"]["Selection"]["IsRemoved"]
+        if is_removed_1:
+            bc_print.print_red(f"is_removed 2 ：true, 无法下注")
             return False
         is_suspended = self.resp_json_bet[0]["market"]["Changeset"]["IsSuspended"]
         if is_suspended:
@@ -270,10 +277,10 @@ class OneNineBC(BaseBC):
             "selectionsPlaced": [self.selectionId]
         }]
         # print(f"下注参数 data {data_stake}")
-        resp_stake = requests.post(
+        resp_stake = self.session.post(
             url_stake, headers=self.headers_bet, data=json.dumps(data_stake), verify=False)
         resp_stake_json = resp_stake.json()
-        resp_stake.close()
+        # resp_stake.close()
         # print(f"下注结果 {resp_stake_json}")
         if "potentialReturns" in resp_stake_json:
             print(f'返回金额: {resp_stake_json["potentialReturns"]}')

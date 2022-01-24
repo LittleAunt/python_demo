@@ -72,9 +72,11 @@ while not is_bet:
             if is_ok_a:
                 bc_print.print_red(f"{game_a['type']} 赔率 OK!")
             else:
-                check_confirm_a = input("赔率核对失败! 是否继续下注 y/n：")
-                if check_confirm_a.strip() != "y":
-                    continue
+                bc_print.print_red(f"{game_a['type']} 赔率核对失败!")
+                continue
+                # check_confirm_a = input("赔率核对失败! 是否继续下注 y/n：")
+                # if check_confirm_a.strip() != "y":
+                #     continue
             # game_b 核实赔率 **********************************
             if zd == "game_b":
                 iszd_b = True
@@ -84,36 +86,48 @@ while not is_bet:
             if is_ok_b:
                 bc_print.print_red(f"{game_b['type']} 赔率 OK!")
             else:
-                check_confirm_b = input("赔率核对失败! 是否继续下注 y/n：")
-                if check_confirm_b.strip() != "y":
-                    continue
+                bc_print.print_red(f"{game_b['type']} 赔率核对失败!")
+                continue
+                # check_confirm_b = input("赔率核对失败! 是否继续下注 y/n：")
+                # if check_confirm_b.strip() != "y":
+                #     continue
             # continue
             # 开始自动下注 ***********************************
+            # a 
+            is_bet_ok_a = oneNineBC.auto_bet(bet_money_a)
+            if is_bet_ok_a:
+                bc_print.print_red(f"{game_a['type']} 下注成功！")
+            else:
+                bc_print.print_red(f"{game_a['type']} 下注失败！")
+                continue
+            # b
             is_bet_ok_b = pandaBC.auto_bet(game_b, iszd_b, bet_money_b)
             if is_bet_ok_b:
+                is_bet = True
                 bc_print.print_red(f"{game_b['type']} 下注成功！")
             else:
                 bc_print.print_red(f"{game_b['type']} 下注失败！")
                 continue
-            is_bet_ok_a = oneNineBC.auto_bet(bet_money_a)
-            if is_bet_ok_a:
-                is_bet = True
-                bc_print.print_red(f"{game_a['type']} 下注成功！")
-            else:
-                # 下注失败，再尝试一次下注
-                again_confirm_a = input("下注失败! 是否重新下注 y/n：")
-                if again_confirm_a.strip() == "y":
-                    again_is_ok_a = oneNineBC.check_bet(game_a, pk, bet, iszd_a, ratio_a, bet_money_a)
-                    again_check_confirm_a = input("是否继续下注 y/n：")
-                    if again_check_confirm_a.strip() == "y":
-                        again_is_bet_ok_a = oneNineBC.auto_bet(bet_money_a)
-                        if again_is_bet_ok_a:
-                            bc_print.print_red(f"{game_a['type']} 下注成功！")
-                        else:
-                            bc_print.print_red(f"{game_a['type']} 下注失败！")
-                else:
-                    continue
+            
+            # is_bet_ok_a = oneNineBC.auto_bet(bet_money_a)         
+            # if is_bet_ok_a:
+            #     is_bet = True
+            #     bc_print.print_red(f"{game_a['type']} 下注成功！")
+            # else:
+            #     # 下注失败，再尝试一次下注
+            #     again_confirm_a = input("下注失败! 是否重新下注 y/n：")
+            #     if again_confirm_a.strip() == "y":
+            #         again_is_ok_a = oneNineBC.check_bet(game_a, pk, bet, iszd_a, ratio_a, bet_money_a)
+            #         again_check_confirm_a = input("是否继续下注 y/n：")
+            #         if again_check_confirm_a.strip() == "y":
+            #             again_is_bet_ok_a = oneNineBC.auto_bet(bet_money_a)
+            #             if again_is_bet_ok_a:
+            #                 bc_print.print_red(f"{game_a['type']} 下注成功！")
+            #             else:
+            #                 bc_print.print_red(f"{game_a['type']} 下注失败！")
+            #     else:
+            #         continue
     # 睡眠 30 - 60 秒
     sleep_time = random.randint(30, 60)
     print(f"间隔时间：{sleep_time}")
-    time.sleep(sleep_time)
+    time.sleep(30)

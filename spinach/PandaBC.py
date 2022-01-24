@@ -9,7 +9,6 @@ import bc_print
 
 # 用户身份验证。接口中 request_headers 中的 requestId 字段
 USER_AUTH = USER_AUTH_OB
-
 # 获取小金比赛队伍 ID
 
 
@@ -116,19 +115,22 @@ class PandaBC(BaseBC):
     data_post_games = {"mids": "",  # 需动态设置
                        "cuid": "220087197198348288",
                        "sort": 1, "pids": "", "euid": "3020101", "cos": 0}
+    # keep-alive
+    session = requests.session()
+    session.headers = headers_mids
+    
     # 爬取数据
-
     def crawling(self):
-        resp_mids = requests.post(self.url_mids, headers=self.headers_mids,
+        resp_mids = self.session.post(self.url_mids,
                                   data=json.dumps(self.data_post_mids), verify=False)
         print("**********************************************************************")
         data_mids = self.parseMids(resp_mids.json())
-        resp_mids.close()
+        # resp_mids.close()
         print("联赛 mids = " + data_mids)
         self.data_post_games["mids"] = data_mids
-        resp_games = requests.post(self.url_games, headers=self.headers_mids,
+        resp_games = self.session.post(self.url_games, 
                                    data=json.dumps(self.data_post_games), verify=False)
-        resp_games.close()
+        # resp_games.close()
         return self.parse(resp_games.json())
 
     flag = True  # 根据 flag 决定请求前40还是后续数据
@@ -245,10 +247,10 @@ class PandaBC(BaseBC):
         }
         # print(f"注单请求参数 {data_market}")
         # 请求注单详情信息
-        resp_market = requests.post(
-            url_market, headers=self.headers_mids, data=json.dumps(data_market), verify=False)
+        resp_market = self.session.post(
+            url_market, data=json.dumps(data_market), verify=False)
         self.resp_market_json = resp_market.json()
-        resp_market.close()
+        # resp_market.close()
         # 核对最新赔率
         if self.resp_market_json["data"][0]["currentMarket"] == None:
             print(f"获取currentMarket失败，返回结果：\n{self.resp_market_json}")
@@ -322,10 +324,10 @@ class PandaBC(BaseBC):
             }]
         }
         # print(f"下注参数 {data_bet}")
-        resp_bet = requests.post(
-            url_bet, headers=self.headers_mids, data=json.dumps(data_bet), verify=False)
+        resp_bet = self.session.post(
+            url_bet, data=json.dumps(data_bet), verify=False)
         resp_bet_json = resp_bet.json()
-        resp_bet.close()
+        # resp_bet.close()
         # print(f"下注结果 {resp_bet_json}")
         if resp_bet_json["msg"] == "成功":
             return True

@@ -2,9 +2,9 @@ from config import TARGET_ODDS, ONLY_WIN_OR_LOSE
 import re
 
 # 联赛名称匹配精度
-ACCURACY_LEAGUE = 0.8
+ACCURACY_LEAGUE = 0.9
 # 比赛队伍名称匹配精度
-ACCURACY_TEAM = 0.6
+ACCURACY_TEAM = 0.7
 
 match_result_list = [] # 匹配成功的结果列表
 """
@@ -43,7 +43,7 @@ def compare_pk(game1, game2, pk, list1, list2):
         ratio2 = float(list1_values[1]) * float(list2_values[0])
         match_result = {}
         # 不仅赔率乘积要大于预期，且双方的赔率都不能小于 0.5（低于0.5的基本比赛快结束，下注易失败）
-        if ratio1 >= TARGET_ODDS and float(list1_values[0]) >= 0.5 and float(list2_values[1]) >= 0.5:
+        if ratio1 >= TARGET_ODDS and float(list1_values[0]) >= 0.6 and float(list2_values[1]) >= 0.6:
             match_result["game_a"] = game1
             match_result["game_b"] = game2
             match_result["pk"] = pk
@@ -130,8 +130,8 @@ def cal_odds(game_a_list, game_b_list):
     for game_a in game_a_list:
         # 是否匹配对应比赛
         matched = False
-        if game_a['team_name_1'] == '阿科夏普尔':
-            continue
+        # if game_a['team_name_1'] == '阿科夏普尔':
+        #     continue
         for game_b in game_b_list:
             if game_a['time'] != game_b['time']:
                 continue
