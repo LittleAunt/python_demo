@@ -54,7 +54,7 @@ def compare_pk(game1, game2, pk, list1, list2):
             match_result["ratio_a"] = float(list1_values[0])
             match_result["ratio_b"] = float(list2_values[1])
             match_result_list.append(match_result)
-        if ratio2 >= TARGET_ODDS and float(list1_values[1]) >= 0.5 and float(list2_values[0]) >= 0.5:
+        if ratio2 >= TARGET_ODDS and float(list1_values[1]) >= 0.6 and float(list2_values[0]) >= 0.6:
             match_result["game_a"] = game1
             match_result["game_b"] = game2
             match_result["pk"] = pk
@@ -130,8 +130,8 @@ def cal_odds(game_a_list, game_b_list):
     for game_a in game_a_list:
         # 是否匹配对应比赛
         matched = False
-        # if game_a['team_name_1'] == '阿科夏普尔':
-        #     continue
+        if game_a['team_name_1'] == '维拉斯尼亚':
+            continue
         for game_b in game_b_list:
             if game_a['time'] != game_b['time']:
                 continue

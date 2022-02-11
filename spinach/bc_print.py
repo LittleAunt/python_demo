@@ -1,4 +1,6 @@
 
+import time
+
 def print_red(p_str):
     print('\033[1;31;40m ' + p_str + ' \033[0m')
 
@@ -29,12 +31,21 @@ def print_match_result(match_result):
     print("**********************************************************************")
     # 打印当前赔率
     ratio = match_result["ratio"]
-    print_red(f"当前赔率: {ratio}")
+    # 计算比赛剩余时间
+    game_a = match_result["game_a"]
+    time_a = game_a["time"]
+    timeArray = time.strptime(time_a, "%Y-%m-%d %H:%M:%S")
+    timeStamp = int(time.mktime(timeArray))
+    c_timeStamp = int(time.time())
+    time_gone = (int)((c_timeStamp - timeStamp) / 60) # 已经比赛多长时间
+    if match_result["pk"] == "bc_rq_list" or match_result["pk"] == "bc_dx_list":
+        time_total = 45 # 半场比赛 45 分钟
+    else:
+        time_total = 90 + 15 # 15 分钟中场休息时间
+    print_red(f"当前赔率: {ratio}， 剩余时间：{time_total - time_gone} 分钟")
     bet_type = convert_game_type(match_result["bet"])
     # 打印 game_a 信息
-    game_a = match_result["game_a"]
     type_a = game_a["type"]
-    time_a = game_a["time"]
     ls_a = game_a["league_name"]
     team_a_1 = game_a["team_name_1"]
     team_a_2 = game_a["team_name_2"]

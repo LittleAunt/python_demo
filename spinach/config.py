@@ -1,9 +1,9 @@
-TARGET_ODDS = 1.01 # 赔率
+TARGET_ODDS = 1.03 # 赔率
 MODE_GQ = True # 是否匹配滚球， False 是今日
 # ob 接口auth
-USER_AUTH_OB = "67dc1cd631fb009f614fada794aa9cc80c39e9ae"
+USER_AUTH_OB = "c52bf109026e32029513c6be0acb4049355e2e5d"
 # 19 接口配置
-USER_SESSION_19 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjdXN0b21lcklkIjoxMDA5NTA1MjUsImV4cGlyZWREYXRlIjoxNjQzMTIxNDE1NTE0LCJpYXQiOjE2NDMwMjk2OTB9.XNsuWZ5DlCqL6PJeOj6yqpCw7MdrtxVUeJZwcQSbgDE"
+USER_SESSION_19 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjdXN0b21lcklkIjoxMDA5NTA1MjUsImV4cGlyZWREYXRlIjoxNjQ0NjU5MzU1MzA5LCJjdXN0b21lcklwIjoiMTE3LjEzNi40NS4xNTMiLCJpYXQiOjE2NDQ1NzI5NDN9.l211FhZuKRSm5PNK_ofB2I641bZSZwzJsyt6nAc2j3Q"
 IS_WB_19 = False # ********* 特别注意 *********
 # 万博平台
 DOMAIN_19_WB = "prod20063.1x2aaa.com" 
@@ -21,3 +21,6 @@ else:
 
 ONLY_WIN_OR_LOSE = False # 只匹配绝对输赢的盘口（ 1 bet 保险）
 REDUCE_MONEY = 0 # 计算出的对应金额应少与实际金额多少（ 1bet 保险）
+
+# 比赛剩余时长显示
+# ob 下注最大额判断
