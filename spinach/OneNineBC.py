@@ -80,12 +80,15 @@ class OneNineBC(BaseBC):
 
     # 爬取数据
     def crawling(self):
-        # 开启 charles 代理的情况下需要 verify=False，否则会报错
-        print(f'crawling start {time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}')
-        resp = self.session.get(self.url, headers=self.headers, verify=False)
-        print(f'crawling end {time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}')
-        # resp.close()
-        return self.parse(resp.json())
+        try:
+            # 开启 charles 代理的情况下需要 verify=False，否则会报错
+            print(f'crawling start {time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}')
+            resp = self.session.get(self.url, headers=self.headers, timeout=5, verify=False)
+            print(f'crawling end {time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}')
+            # resp.close()
+            return self.parse(resp.json())
+        except:
+            return None
 
      # 解析数据
     def parse(self, data):
@@ -182,11 +185,15 @@ class OneNineBC(BaseBC):
         print(f"获取下注详情信息 selectionId = {self.selectionId}")
         print(f'check start {time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}')
         resp_bet_detail = self.session.post(url_bet_detail, headers=self.headers_bet, data=json.dumps(
-            url_bet_detail_data_list), verify=False)
+            url_bet_detail_data_list), timeout=5, verify=False)
         print(f'check end {time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}')
         # resp_bet_detail.close()
-        # 提取字段。判断赔率是否改变
         self.resp_json_bet = resp_bet_detail.json()
+        # Selection 字段可能不存在
+        if self.resp_json_bet[0]["market"]["Changeset"]["Selection"] == None:
+            bc_print.print_red(f"Selection = null, 无法下注")
+            return False
+        # 提取字段。判断赔率是否改变
         self.trueOdds = self.resp_json_bet[0]["market"]["Changeset"]["Selection"]["TrueOdds"]
         # 确认盘口是否还可正常下注
         is_removed = self.resp_json_bet[0]["market"]["Changeset"]["IsRemoved"]

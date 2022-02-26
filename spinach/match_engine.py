@@ -1,4 +1,4 @@
-from config import TARGET_ODDS, ONLY_WIN_OR_LOSE
+from config import TARGET_ODDS, ONLY_WIN_OR_LOSE, NOT_MATCH_ZERO
 import re
 
 # 联赛名称匹配精度
@@ -34,6 +34,9 @@ def compare_pk(game1, game2, pk, list1, list2):
             list1_key_values = list1_key_str.split(".")
             if len(list1_key_values) != 2 or list1_key_values[1] != '5':
                 continue
+        if NOT_MATCH_ZERO:
+            if list1_key == 0:
+                continue
         # 提取两个平台盘口对应的赔率数值
         list2_value_str = list2[list1_key]
         list1_values = list1_value_str.split(',')
@@ -43,7 +46,7 @@ def compare_pk(game1, game2, pk, list1, list2):
         ratio2 = float(list1_values[1]) * float(list2_values[0])
         match_result = {}
         # 不仅赔率乘积要大于预期，且双方的赔率都不能小于 0.5（低于0.5的基本比赛快结束，下注易失败）
-        if ratio1 >= TARGET_ODDS and float(list1_values[0]) >= 0.6 and float(list2_values[1]) >= 0.6:
+        if ratio1 >= TARGET_ODDS and float(list1_values[0]) >= 0.7 and float(list2_values[1]) >= 0.7:
             match_result["game_a"] = game1
             match_result["game_b"] = game2
             match_result["pk"] = pk
@@ -54,7 +57,7 @@ def compare_pk(game1, game2, pk, list1, list2):
             match_result["ratio_a"] = float(list1_values[0])
             match_result["ratio_b"] = float(list2_values[1])
             match_result_list.append(match_result)
-        if ratio2 >= TARGET_ODDS and float(list1_values[1]) >= 0.6 and float(list2_values[0]) >= 0.6:
+        if ratio2 >= TARGET_ODDS and float(list1_values[1]) >= 0.7 and float(list2_values[0]) >= 0.7:
             match_result["game_a"] = game1
             match_result["game_b"] = game2
             match_result["pk"] = pk
@@ -130,8 +133,8 @@ def cal_odds(game_a_list, game_b_list):
     for game_a in game_a_list:
         # 是否匹配对应比赛
         matched = False
-        if game_a['team_name_1'] == '维拉斯尼亚':
-            continue
+        # if game_a['team_name_1'] == '南洞' or game_a['team_name_1'] == '全州市民' or game_a['team_name_1'] == '唐津市民':
+        #     continue
         for game_b in game_b_list:
             if game_a['time'] != game_b['time']:
                 continue

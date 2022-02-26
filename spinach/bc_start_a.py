@@ -25,10 +25,16 @@ is_bet = False
 while not is_bet:
     # 19 平台
     on_game_list = oneNineBC.crawling()
+    if on_game_list == None:
+        bc_print.print_red("19 数据获取失败！")
+        continue
     print("**********************************************************************")
     print(f"19 平台比赛个数：{len(on_game_list)}")
     # panda 平台
     ob_game_list = pandaBC.crawling()
+    if ob_game_list == None:
+        bc_print.print_red("ob 数据获取失败！")
+        continue
     print("**********************************************************************")
     print(f"ob 平台比赛个数：{len(ob_game_list)}")
     # 匹配结果

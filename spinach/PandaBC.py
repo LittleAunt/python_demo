@@ -121,17 +121,20 @@ class PandaBC(BaseBC):
     
     # 爬取数据
     def crawling(self):
-        resp_mids = self.session.post(self.url_mids,
-                                  data=json.dumps(self.data_post_mids), verify=False)
-        print("**********************************************************************")
-        data_mids = self.parseMids(resp_mids.json())
-        # resp_mids.close()
-        print("联赛 mids = " + data_mids)
-        self.data_post_games["mids"] = data_mids
-        resp_games = self.session.post(self.url_games, 
-                                   data=json.dumps(self.data_post_games), verify=False)
-        # resp_games.close()
-        return self.parse(resp_games.json())
+        try:
+            resp_mids = self.session.post(self.url_mids,
+                                    data=json.dumps(self.data_post_mids), timeout=5, verify=False)
+            print("**********************************************************************")
+            data_mids = self.parseMids(resp_mids.json())
+            # resp_mids.close()
+            print("联赛 mids = " + data_mids)
+            self.data_post_games["mids"] = data_mids
+            resp_games = self.session.post(self.url_games, 
+                                    data=json.dumps(self.data_post_games), timeout=5, verify=False)
+            # resp_games.close()
+            return self.parse(resp_games.json())
+        except:
+            return None
 
     flag = True  # 根据 flag 决定请求前40还是后续数据
     MAX_COUNT = 40  # 第一次最多请求多少组数据
@@ -248,7 +251,7 @@ class PandaBC(BaseBC):
         # print(f"注单请求参数 {data_market}")
         # 请求注单详情信息
         resp_market = self.session.post(
-            url_market, data=json.dumps(data_market), verify=False)
+            url_market, data=json.dumps(data_market), timeout=5, verify=False)
         self.resp_market_json = resp_market.json()
         # resp_market.close()
         # 核对最新赔率
