@@ -88,7 +88,7 @@ while not is_bet:
                 iszd_b = True
             else:
                 iszd_b = False
-            is_ok_b = pandaBC.check_bet(game_b, pk, bet, iszd_b, ratio_b)
+            is_ok_b = pandaBC.check_bet(game_b, pk, bet, iszd_b, ratio_b, bet_money_b)
             if is_ok_b:
                 bc_print.print_red(f"{game_b['type']} 赔率 OK!")
             else:
@@ -97,7 +97,7 @@ while not is_bet:
                 # check_confirm_b = input("赔率核对失败! 是否继续下注 y/n：")
                 # if check_confirm_b.strip() != "y":
                 #     continue
-            # continue
+            continue
             # 开始自动下注 ***********************************
             # a 
             is_bet_ok_a = oneNineBC.auto_bet(bet_money_a)

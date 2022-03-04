@@ -46,7 +46,7 @@ def compare_pk(game1, game2, pk, list1, list2):
         ratio2 = float(list1_values[1]) * float(list2_values[0])
         match_result = {}
         # 不仅赔率乘积要大于预期，且双方的赔率都不能小于 0.5（低于0.5的基本比赛快结束，下注易失败）
-        if ratio1 >= TARGET_ODDS and float(list1_values[0]) >= 0.7 and float(list2_values[1]) >= 0.7:
+        if ratio1 >= TARGET_ODDS and float(list1_values[0]) >= 0.75 and float(list2_values[1]) >= 0.75:
             match_result["game_a"] = game1
             match_result["game_b"] = game2
             match_result["pk"] = pk
@@ -57,7 +57,7 @@ def compare_pk(game1, game2, pk, list1, list2):
             match_result["ratio_a"] = float(list1_values[0])
             match_result["ratio_b"] = float(list2_values[1])
             match_result_list.append(match_result)
-        if ratio2 >= TARGET_ODDS and float(list1_values[1]) >= 0.7 and float(list2_values[0]) >= 0.7:
+        if ratio2 >= TARGET_ODDS and float(list1_values[1]) >= 0.75 and float(list2_values[0]) >= 0.75:
             match_result["game_a"] = game1
             match_result["game_b"] = game2
             match_result["pk"] = pk
@@ -133,8 +133,8 @@ def cal_odds(game_a_list, game_b_list):
     for game_a in game_a_list:
         # 是否匹配对应比赛
         matched = False
-        # if game_a['team_name_1'] == '南洞' or game_a['team_name_1'] == '全州市民' or game_a['team_name_1'] == '唐津市民':
-        #     continue
+        if game_a['team_name_1'] == '瑟特曼维里索菲亚' or game_a['team_name_1'] == '利物浦 U19':
+            continue
         for game_b in game_b_list:
             if game_a['time'] != game_b['time']:
                 continue
