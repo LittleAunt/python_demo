@@ -97,7 +97,7 @@ while not is_bet:
                 # check_confirm_b = input("赔率核对失败! 是否继续下注 y/n：")
                 # if check_confirm_b.strip() != "y":
                 #     continue
-            continue
+            # continue
             # 开始自动下注 ***********************************
             # a 
             is_bet_ok_a = oneNineBC.auto_bet(bet_money_a)
