@@ -1,4 +1,4 @@
-from config import TARGET_ODDS, ONLY_WIN_OR_LOSE, NOT_MATCH_ZERO
+from config import TARGET_ODDS, ONLY_WIN_OR_LOSE, NOT_MATCH_ZERO, MATCHED_LIST_19
 import re
 
 # 联赛名称匹配精度
@@ -133,8 +133,15 @@ def cal_odds(game_a_list, game_b_list):
     for game_a in game_a_list:
         # 是否匹配对应比赛
         matched = False
-        if game_a['team_name_1'] == '瑟特曼维里索菲亚' or game_a['team_name_1'] == '利物浦 U19':
+        # 已匹配过队伍直接跳过
+        skip = False
+        for matched_19_name in MATCHED_LIST_19:
+            if game_a['team_name_1'] == matched_19_name:
+                skip = True
+                break
+        if skip:
             continue
+        
         for game_b in game_b_list:
             if game_a['time'] != game_b['time']:
                 continue
