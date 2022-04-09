@@ -7,7 +7,7 @@ import os
 import bc_print
 import random
 import time
-from config import REDUCE_MONEY
+from config import REDUCE_MONEY, AUTO_BET
 
 oneNineBC = OneNineBC()
 pandaBC = PandaBC()
@@ -27,6 +27,7 @@ while not is_bet:
     on_game_list = oneNineBC.crawling()
     if on_game_list == None:
         bc_print.print_red("19 数据获取失败！")
+        time.sleep(30)
         continue
     print("**********************************************************************")
     print(f"19 平台比赛个数：{len(on_game_list)}")
@@ -34,6 +35,7 @@ while not is_bet:
     ob_game_list = pandaBC.crawling()
     if ob_game_list == None:
         bc_print.print_red("ob 数据获取失败！")
+        time.sleep(30)
         continue
     print("**********************************************************************")
     print(f"ob 平台比赛个数：{len(ob_game_list)}")
@@ -61,9 +63,12 @@ while not is_bet:
             bet_money_a = int(bet_money_b * (ratio_b + 1) / (ratio_a + 1)) - REDUCE_MONEY
         print(
             f"{game_a['type']} 下注金额：{bet_money_a}, {game_b['type']} 下注金额：{bet_money_b}")
-        # 语音提醒下注
-        os.system('say "匹配成功！"')
-        cmd = input("请确认是否自动下注 y/n：")
+        # 是否自动下注，还是语音提醒手动下注
+        if AUTO_BET:
+            cmd = "y"
+        else:
+            os.system('say "匹配成功！"')
+            cmd = input("请确认是否自动下注 y/n：")
         if cmd.strip() == "y":
             pk = match_result["pk"]
             bet = match_result["bet"]
@@ -133,6 +138,8 @@ while not is_bet:
             #                 bc_print.print_red(f"{game_a['type']} 下注失败！")
             #     else:
             #         continue
+    if is_bet:
+        os.system('say "下注成功！"')
     # 睡眠 30 - 60 秒
     sleep_time = random.randint(30, 60)
     print(f"间隔时间：{sleep_time}")

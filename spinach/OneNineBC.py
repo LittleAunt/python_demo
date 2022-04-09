@@ -83,7 +83,7 @@ class OneNineBC(BaseBC):
         try:
             # 开启 charles 代理的情况下需要 verify=False，否则会报错
             print(f'crawling start {time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}')
-            resp = self.session.get(self.url, headers=self.headers, timeout=5, verify=False)
+            resp = self.session.get(self.url, headers=self.headers, timeout=5, verify=True)
             print(f'crawling end {time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}')
             # resp.close()
             return self.parse(resp.json())
@@ -185,7 +185,7 @@ class OneNineBC(BaseBC):
         print(f"获取下注详情信息 selectionId = {self.selectionId}")
         print(f'check start {time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}')
         resp_bet_detail = self.session.post(url_bet_detail, headers=self.headers_bet, data=json.dumps(
-            url_bet_detail_data_list), timeout=5, verify=False)
+            url_bet_detail_data_list), timeout=5, verify=True)
         print(f'check end {time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}')
         # resp_bet_detail.close()
         self.resp_json_bet = resp_bet_detail.json()
@@ -225,6 +225,7 @@ class OneNineBC(BaseBC):
             bc_print.print_red(f"获取数据出错，盘口不一致.")
             print(self.resp_json_bet)
             return False
+        print(self.resp_json_bet)
         # print(f"获取最新赔率: {self.trueOdds}")
         hk_odds = round(self.trueOdds - 1.0, 2)
         print(f"获取最新赔率hk: {hk_odds}")
@@ -285,13 +286,13 @@ class OneNineBC(BaseBC):
         }]
         # print(f"下注参数 data {data_stake}")
         resp_stake = self.session.post(
-            url_stake, headers=self.headers_bet, data=json.dumps(data_stake), verify=False)
+            url_stake, headers=self.headers_bet, data=json.dumps(data_stake), verify=True)
         resp_stake_json = resp_stake.json()
         # resp_stake.close()
-        # print(f"下注结果 {resp_stake_json}")
+        print(f"下注结果 {resp_stake_json}")
         if "potentialReturns" in resp_stake_json:
-            print(f'返回金额: {resp_stake_json["potentialReturns"]}')
+            # print(f'返回金额: {resp_stake_json["potentialReturns"]}')
             return True
         else:
-            print(f"返回结果: \n{resp_stake_json}")
+            # print(f"返回结果: \n{resp_stake_json}")
             return False

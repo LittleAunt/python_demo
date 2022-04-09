@@ -1,10 +1,10 @@
-from config import TARGET_ODDS, ONLY_WIN_OR_LOSE, NOT_MATCH_ZERO, MATCHED_LIST_19
+from config import TARGET_ODDS, ONLY_WIN_OR_LOSE, NOT_MATCH_ZERO, MATCHED_LIST_19, FUZZY_MATCH
 import re
 
 # 联赛名称匹配精度
-ACCURACY_LEAGUE = 0.9
+ACCURACY_LEAGUE = 0.8
 # 比赛队伍名称匹配精度
-ACCURACY_TEAM = 0.7
+ACCURACY_TEAM = 0.6
 
 match_result_list = [] # 匹配成功的结果列表
 """
@@ -46,7 +46,7 @@ def compare_pk(game1, game2, pk, list1, list2):
         ratio2 = float(list1_values[1]) * float(list2_values[0])
         match_result = {}
         # 不仅赔率乘积要大于预期，且双方的赔率都不能小于 0.5（低于0.5的基本比赛快结束，下注易失败）
-        if ratio1 >= TARGET_ODDS and float(list1_values[0]) >= 0.75 and float(list2_values[1]) >= 0.75:
+        if ratio1 >= TARGET_ODDS and ratio1 <= 1.4 and float(list1_values[0]) >= 0.75 and float(list2_values[1]) >= 0.75:
             match_result["game_a"] = game1
             match_result["game_b"] = game2
             match_result["pk"] = pk
@@ -57,7 +57,7 @@ def compare_pk(game1, game2, pk, list1, list2):
             match_result["ratio_a"] = float(list1_values[0])
             match_result["ratio_b"] = float(list2_values[1])
             match_result_list.append(match_result)
-        if ratio2 >= TARGET_ODDS and float(list1_values[1]) >= 0.75 and float(list2_values[0]) >= 0.75:
+        if ratio2 >= TARGET_ODDS and ratio2 <= 1.4 and float(list1_values[1]) >= 0.75 and float(list2_values[0]) >= 0.75:
             match_result["game_a"] = game1
             match_result["game_b"] = game2
             match_result["pk"] = pk
@@ -158,6 +158,8 @@ def cal_odds(game_a_list, game_b_list):
                 matched = True
                 break
             # 模糊匹配，联赛比配成功，且比赛名匹配成功
+            if not FUZZY_MATCH:
+                continue
             league_name_a = game_a["league_name"].replace('联赛', '').replace('杯', '').replace('级', '').replace('級', '')
             league_name_b = game_b["league_name"].replace('联赛', '').replace('杯', '').replace('级', '').replace('級', '')
             if fuzzy_matching(league_name_a, league_name_b, ACCURACY_LEAGUE):

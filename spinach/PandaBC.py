@@ -123,21 +123,21 @@ class PandaBC(BaseBC):
     def crawling(self):
         try:
             resp_mids = self.session.post(self.url_mids,
-                                    data=json.dumps(self.data_post_mids), timeout=5, verify=False)
+                                    data=json.dumps(self.data_post_mids), timeout=5, verify=True)
             print("**********************************************************************")
             data_mids = self.parseMids(resp_mids.json())
             # resp_mids.close()
             print("联赛 mids = " + data_mids)
             self.data_post_games["mids"] = data_mids
             resp_games = self.session.post(self.url_games, 
-                                    data=json.dumps(self.data_post_games), timeout=5, verify=False)
+                                    data=json.dumps(self.data_post_games), timeout=5, verify=True)
             # resp_games.close()
             return self.parse(resp_games.json())
         except:
             return None
 
     flag = True  # 根据 flag 决定请求前40还是后续数据
-    MAX_COUNT = 40  # 第一次最多请求多少组数据
+    MAX_COUNT = 100  # 第一次最多请求多少组数据
     # 解析分类 ids，用来进行比赛请求参数
 
     def parseMids(self, data):
@@ -279,7 +279,7 @@ class PandaBC(BaseBC):
         # print(f"注单请求参数 {data_market}")
         # 请求注单详情信息
         resp_market = self.session.post(
-            url_market, data=json.dumps(data_market), timeout=5, verify=False)
+            url_market, data=json.dumps(data_market), timeout=5, verify=True)
         self.resp_market_json = resp_market.json()
         # resp_market.close()
         # 确认是否超过最大下注额度
@@ -360,12 +360,12 @@ class PandaBC(BaseBC):
         }
         # print(f"下注参数 {data_bet}")
         resp_bet = self.session.post(
-            url_bet, data=json.dumps(data_bet), verify=False)
+            url_bet, data=json.dumps(data_bet), verify=True)
         resp_bet_json = resp_bet.json()
         # resp_bet.close()
-        # print(f"下注结果 {resp_bet_json}")
+        print(f"下注结果 {resp_bet_json}")
         if resp_bet_json["msg"] == "成功":
             return True
         else:
-            print(f"返回结果: \n{resp_bet_json}")
+            # print(f"返回结果: \n{resp_bet_json}")
             return False
