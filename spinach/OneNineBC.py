@@ -31,7 +31,7 @@ def get_nine_rq(nine):
         # Home 主队，Away 客队 (19 的数据有可能赔率未显示的时候为 0 )
         if zd[9]['ZH'] == 'Home' and zd[5] != 0:
             for kd in nine:
-                if kd[9]['ZH'] == 'Away' and zd[13] == kd[13] * -1.0:
+                if kd[9]['ZH'] == 'Away' and zd[13] != None and kd[13] != None and zd[13] == kd[13] * -1.0: # zd[13]，kd[13] 存在 None的情况, 需要优化用字段【2】
                     key = zd[13]
                     zd_value = round(zd[5] - 1.0, 2)
                     kd_value = round(kd[5] - 1.0, 2)
@@ -66,7 +66,7 @@ class OneNineBC(BaseBC):
     else:
         url = url_jr
     headers = {
-        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.55 Safari/537.36",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:99.0) Gecko/20100101 Firefox/99.0",
         "session": USER_SESSION_19,
         "accept": "application/json",
         "connection": "keep-alive",
@@ -83,7 +83,7 @@ class OneNineBC(BaseBC):
         try:
             # 开启 charles 代理的情况下需要 verify=False，否则会报错
             print(f'crawling start {time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}')
-            resp = self.session.get(self.url, headers=self.headers, timeout=5, verify=True)
+            resp = self.session.get(self.url, headers=self.headers, timeout=5, verify=False)
             print(f'crawling end {time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}')
             # resp.close()
             return self.parse(resp.json())
@@ -99,9 +99,10 @@ class OneNineBC(BaseBC):
         for ls in serializedData:
             # 联赛名称
             league_name = ls[1]
-            # print "*******: " + league_name
+            # print ("*******: " + league_name)
             # 遍历比赛
             for bs in ls[12]:
+                # print(bs)
                 sport_game = {}
                 sport_game['type'] = self.bc_type
                 # 获取并转换比赛时间，格式如 2013-10-10 23:40:00 （原数据为 2022-01-13T12:30:00.000Z，因为时区问题需要再加8）
@@ -156,7 +157,7 @@ class OneNineBC(BaseBC):
         # 获取下注详情信息
         url_bet_detail = f"https://{DOMAIN_19}/api/betslip/betslip"
         self.headers_bet = {
-            "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.55 Safari/537.36",
+            "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:99.0) Gecko/20100101 Firefox/99.0",
             "session": USER_SESSION_19,
             "accept": "application/json",
             "content-type": "application/json",
@@ -276,7 +277,7 @@ class OneNineBC(BaseBC):
                 "isTablet": False,
                 "bettingView": "Asian View",
                 "fullURL": f"https://{DOMAIN_19}/zh/asian-view/today/%25E8%25B6%25B3%25E7%2590%2583",
-                "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.55 Safari/537.36"
+                "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:99.0) Gecko/20100101 Firefox/99.0"
             },
             "selectionsNames": [{
                 "id": self.selectionId,

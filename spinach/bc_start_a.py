@@ -107,6 +107,7 @@ while not is_bet:
             # a 
             is_bet_ok_a = oneNineBC.auto_bet(bet_money_a)
             if is_bet_ok_a:
+                is_bet = True
                 bc_print.print_red(f"{game_a['type']} 下注成功！")
             else:
                 bc_print.print_red(f"{game_a['type']} 下注失败！")
@@ -141,6 +142,6 @@ while not is_bet:
     if is_bet:
         os.system('say "下注成功！"')
     # 睡眠 30 - 60 秒
-    sleep_time = random.randint(30, 60)
+    sleep_time = random.randint(30, 50)
     print(f"间隔时间：{sleep_time}")
-    time.sleep(30)
+    time.sleep(sleep_time)

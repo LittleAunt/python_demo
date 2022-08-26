@@ -45,8 +45,8 @@ def compare_pk(game1, game2, pk, list1, list2):
         ratio1 = float(list1_values[0]) * float(list2_values[1])
         ratio2 = float(list1_values[1]) * float(list2_values[0])
         match_result = {}
-        # 不仅赔率乘积要大于预期，且双方的赔率都不能小于 0.5（低于0.5的基本比赛快结束，下注易失败）
-        if ratio1 >= TARGET_ODDS and ratio1 <= 1.4 and float(list1_values[0]) >= 0.75 and float(list2_values[1]) >= 0.75:
+        # 不仅赔率乘积要大于预期，且双方的赔率都不能小于 0.8（低于0.8的基本比赛快结束或对比赔率大，下注易失败）
+        if ratio1 >= TARGET_ODDS and ratio1 <= 1.4 and float(list1_values[0]) >= 0.8 and float(list2_values[1]) >= 0.8:
             match_result["game_a"] = game1
             match_result["game_b"] = game2
             match_result["pk"] = pk
@@ -57,7 +57,7 @@ def compare_pk(game1, game2, pk, list1, list2):
             match_result["ratio_a"] = float(list1_values[0])
             match_result["ratio_b"] = float(list2_values[1])
             match_result_list.append(match_result)
-        if ratio2 >= TARGET_ODDS and ratio2 <= 1.4 and float(list1_values[1]) >= 0.75 and float(list2_values[0]) >= 0.75:
+        if ratio2 >= TARGET_ODDS and ratio2 <= 1.4 and float(list1_values[1]) >= 0.8 and float(list2_values[0]) >= 0.8:
             match_result["game_a"] = game1
             match_result["game_b"] = game2
             match_result["pk"] = pk

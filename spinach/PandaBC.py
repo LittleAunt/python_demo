@@ -98,7 +98,7 @@ class PandaBC(BaseBC):
         "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
         "Connection": "keep-alive",
         "Content-Type": "application/json;charset=UTF-8",
-        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.55 Safari/537.36",
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36",
         "Referer": "https://user-pc-bw4.4lxd71h6.com/",
         "requestId": USER_AUTH
     }
@@ -123,14 +123,14 @@ class PandaBC(BaseBC):
     def crawling(self):
         try:
             resp_mids = self.session.post(self.url_mids,
-                                    data=json.dumps(self.data_post_mids), timeout=5, verify=True)
+                                    data=json.dumps(self.data_post_mids), timeout=5, verify=False)
             print("**********************************************************************")
             data_mids = self.parseMids(resp_mids.json())
             # resp_mids.close()
             print("联赛 mids = " + data_mids)
             self.data_post_games["mids"] = data_mids
             resp_games = self.session.post(self.url_games, 
-                                    data=json.dumps(self.data_post_games), timeout=5, verify=True)
+                                    data=json.dumps(self.data_post_games), timeout=7, verify=False)
             # resp_games.close()
             return self.parse(resp_games.json())
         except:
