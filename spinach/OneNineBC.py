@@ -22,7 +22,6 @@ def get_nine_team_ids(team1, team2):
             nine_team_id[1] = key
     return nine_team_id
 
-
 # 获取19比赛的让球
 def get_nine_rq(nine):
     # print nine

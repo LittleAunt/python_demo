@@ -1,5 +1,8 @@
 TARGET_ODDS = 1.0 # 赔率
 MODE_GQ = True # 是否匹配滚球， False 是今日
+
+# im 接口 token
+USER_TOKEN_IM = "863aeb4b-ea49-407d-91bb-e1763daa17ec"
 # ob 接口auth
 USER_AUTH_OB = "0ac2248686a0e6f0269984d84f8e8eed1ffebd3d"
 # 19 接口配置
@@ -32,7 +35,7 @@ NOT_MATCH_ZERO = True # 不匹配让 0 赔率,滚球中这种赔率一般走水�
 FUZZY_MATCH = False # 是否进行模糊匹配
 AUTO_BET = True # 是否自动下注
 
-MATCHED_LIST_19 = {
+MATCHED_LIST = {
     "马尼沙 U19",
     "阿达纳 U19",
     "阿森纳",

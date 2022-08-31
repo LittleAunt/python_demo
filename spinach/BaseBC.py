@@ -21,12 +21,12 @@ class BaseBC:
     
     type = ""  # 平台类型
     league_name = ""  # 联赛名称
-    time = "" # 比赛时间
+    time = "" # 比赛时间 2013-10-10 23:40:00
     team_id_1 = ""  # 前队 id
     team_id_2 = ""  # 后队 id
     team_name_1 = ""  # 前队名称
     team_name_2 = ""  # 后队名称
-    qc_rq_list = ""  # 全场让球列表 {key(赔率):'value1,value2'}
+    qc_rq_list = ""  # 全场让球列表 {key(赔率,value1判断正负):'value1,value2'}
     qc_dx_list = ""  # 全场大小列表
     bc_rq_list = ""  # 半场让球列表
     bc_dx_list = ""  # 半场大小列表
