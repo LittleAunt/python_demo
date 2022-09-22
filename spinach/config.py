@@ -1,10 +1,13 @@
 TARGET_ODDS = 1.0 # 赔率
 MODE_GQ = True # 是否匹配滚球， False 是今日
 
+# 188bet 接口 token
+USER_TOKEN_FF = "2ea98712474d40ca8b6da380cef5403d"
+# ob 接口auth
+USER_AUTH_OB = "b79fc3f97224956b18c4321477198654af4fad6e"
+
 # im 接口 token
 USER_TOKEN_IM = "863aeb4b-ea49-407d-91bb-e1763daa17ec"
-# ob 接口auth
-USER_AUTH_OB = "0ac2248686a0e6f0269984d84f8e8eed1ffebd3d"
 # 19 接口配置
 USER_SESSION_19 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjdXN0b21lcklkIjoxMDU5NDU1MDIsImV4cGlyZWREYXRlIjoxNjYwNDc3ODEyODA4LCJjdXN0b21lcklwIjoiMjIzLjEwNy4yMC4xMDMiLCJpYXQiOjE2NjAzOTEzNjl9.giB0oDKLynkPTJUBkpwFroQjMrpaHaXTpI9OiYKWuFI"
 IS_WB_19 = False # ********* 特别注意 *********

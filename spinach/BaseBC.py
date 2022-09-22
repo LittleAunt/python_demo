@@ -7,10 +7,6 @@ class BaseBC:
     def crawling(self):
         pass
 
-    # 解析数据
-    def parse(self, data):
-        pass
-
     # 自动下单
     def auto_bet(self, data):
         pass
