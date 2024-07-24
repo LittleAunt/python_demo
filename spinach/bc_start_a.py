@@ -12,14 +12,8 @@ from config import REDUCE_MONEY, AUTO_BET
 oneNineBC = OneNineBC()
 pandaBC = PandaBC()
 
-platform = input("请输入需要下注平台 a/b：")
-if platform.strip() == 'a':
-    is_bet_money_a = True
-else:
-    is_bet_money_a = False
-money = input("请输入下注金额：")
+money = input("请输入19最大下注额：")
 bet_money = int(money.strip())
-print(f"平台a：{is_bet_money_a}, 金额：{bet_money}")
 # 是否循环，当下注成功应跳出循环
 is_bet = False
 while not is_bet:
@@ -55,14 +49,8 @@ while not is_bet:
         game_a = match_result["game_a"]
         ratio_b = match_result["ratio_b"]
         game_b = match_result["game_b"]
-        if is_bet_money_a:
-            bet_money_a = bet_money
-            bet_money_b = int(bet_money_a * (ratio_a + 1) / (ratio_b + 1)) - REDUCE_MONEY
-        else:
-            bet_money_b = bet_money
-            bet_money_a = int(bet_money_b * (ratio_b + 1) / (ratio_a + 1)) - REDUCE_MONEY
-        print(
-            f"{game_a['type']} 下注金额：{bet_money_a}, {game_b['type']} 下注金额：{bet_money_b}")
+        bet_money_a = bet_money     
+        
         # 是否自动下注，还是语音提醒手动下注
         if AUTO_BET:
             cmd = "y"
@@ -79,9 +67,12 @@ while not is_bet:
                 iszd_a = True
             else:
                 iszd_a = False
-            is_ok_a = oneNineBC.check_bet(game_a, pk, bet, iszd_a, ratio_a, bet_money_a)
-            if is_ok_a:
+            check_result_a = oneNineBC.check_bet(game_a, pk, bet, iszd_a, ratio_a, bet_money_a)
+            if check_result_a["check"]:
                 bc_print.print_red(f"{game_a['type']} 赔率 OK!")
+                bet_money_a = check_result_a["money"]
+                bet_money_b = int(bet_money_a * (ratio_a + 1) / (ratio_b + 1)) - REDUCE_MONEY
+                bc_print.print_red(f"{game_a['type']} 下注金额：{bet_money_a}, {game_b['type']} 下注金额：{bet_money_b}")
             else:
                 bc_print.print_red(f"{game_a['type']} 赔率核对失败!")
                 continue
@@ -113,13 +104,13 @@ while not is_bet:
                 bc_print.print_red(f"{game_a['type']} 下注失败！")
                 continue
             # b
-            is_bet_ok_b = pandaBC.auto_bet(game_b, iszd_b, bet_money_b)
-            if is_bet_ok_b:
-                is_bet = True
-                bc_print.print_red(f"{game_b['type']} 下注成功！")
-            else:
-                bc_print.print_red(f"{game_b['type']} 下注失败！")
-                continue
+            # is_bet_ok_b = pandaBC.auto_bet(game_b, iszd_b, bet_money_b)
+            # if is_bet_ok_b:
+            #     is_bet = True
+            #     bc_print.print_red(f"{game_b['type']} 下注成功！")
+            # else:
+            #     bc_print.print_red(f"{game_b['type']} 下注失败！")
+            #     continue
             
             # is_bet_ok_a = oneNineBC.auto_bet(bet_money_a)         
             # if is_bet_ok_a:
@@ -142,6 +133,6 @@ while not is_bet:
     if is_bet:
         os.system('say "下注成功！"')
     # 睡眠 30 - 60 秒
-    sleep_time = random.randint(30, 50)
+    sleep_time = random.randint(20, 40)
     print(f"间隔时间：{sleep_time}")
     time.sleep(sleep_time)

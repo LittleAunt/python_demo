@@ -2,9 +2,9 @@ from config import TARGET_ODDS, ONLY_WIN_OR_LOSE, NOT_MATCH_ZERO, MATCHED_LIST, 
 import re
 
 # 联赛名称匹配精度
-ACCURACY_LEAGUE = 0.8
+ACCURACY_LEAGUE = 0.7
 # 比赛队伍名称匹配精度
-ACCURACY_TEAM = 0.6
+ACCURACY_TEAM = 0.7
 
 match_result_list = [] # 匹配成功的结果列表
 """
@@ -150,6 +150,7 @@ def cal_odds(game_a_list, game_b_list):
             name_a_team_2 = game_a['team_name_2'].replace(' ', '').replace("[", "(").replace("]", ")").replace("女", "女")
             name_b_team_1 = game_b['team_name_1'].replace(' ', '').replace("[", "(").replace("]", ")").replace("女", "女")
             name_b_team_2 = game_b['team_name_2'].replace(' ', '').replace("[", "(").replace("]", ")").replace("女", "女")  
+            
             # 比赛比对成功，开始计算赔率
             if game_a['team_id_1'] == game_b['team_id_1'] or game_a['team_id_2'] == game_b['team_id_2']:
                 matched = True

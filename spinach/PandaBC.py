@@ -91,15 +91,15 @@ class PandaBC(BaseBC):
 
     bc_type = "ob"
     # 请求联赛 ids
-    url_mids = "https://api.lzwkbgtuq.com/yewu11/v1/w/structureTournamentMatches"
+    url_mids = "https://api.xacmbtszd.com/yewu11/v1/w/structureTournamentMatches"
     headers_mids = {
         "Accept": "application/json, text/plain, */*",
         "Accept-Encoding": "gzip, deflate, br",
         "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
         "Connection": "keep-alive",
         "Content-Type": "application/json;charset=UTF-8",
-        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36",
-        "Referer": "https://user-pc-bw4.4lxd71h6.com/",
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36",
+        "Referer": "https://user-pc-bw4.yikouliao.com/",
         "requestId": USER_AUTH
     }
     data_post_mids = {"apiType": 1,
@@ -111,7 +111,7 @@ class PandaBC(BaseBC):
                       "sort": 1,
                       "tid": ""}
     # 请求所有比赛信息
-    url_games = "https://api.lzwkbgtuq.com/yewu11/v1/w/structureMatchBaseInfoByMids"
+    url_games = "https://api.xacmbtszd.com/yewu11/v1/w/structureMatchBaseInfoByMids"
     data_post_games = {"mids": "",  # 需动态设置
                        "cuid": "220087197198348288",
                        "sort": 1, "pids": "", "euid": "3020101", "cos": 0}
@@ -130,7 +130,7 @@ class PandaBC(BaseBC):
             print("联赛 mids = " + data_mids)
             self.data_post_games["mids"] = data_mids
             resp_games = self.session.post(self.url_games, 
-                                    data=json.dumps(self.data_post_games), timeout=7, verify=False)
+                                    data=json.dumps(self.data_post_games), timeout=7, verify=True)
             # resp_games.close()
             return self.parse(resp_games.json())
         except:
@@ -214,7 +214,7 @@ class PandaBC(BaseBC):
     def check_bet(self, game, pk, bet, iszd, ratio, money):
         print("**********************************************************************")
         print(f"{game['type']} 平台赔率: {ratio} 核对......")
-        url_market = "https://api.lzwkbgtuq.com/yewu13/v1/betOrder/queryBetAmount"
+        url_market = "https://api.xacmbtszd.com/yewu13/v1/betOrder/queryBetAmount"
         # data_market
         self.marketId = ""
         self.matchInfoId = game['mid']
@@ -310,7 +310,7 @@ class PandaBC(BaseBC):
     # 开始下注
     def auto_bet(self, game, iszd, money):
         print("**********************************************************************")
-        url_bet = "https://api.lzwkbgtuq.com/yewu13/v1/betOrder/bet"
+        url_bet = "https://api.xacmbtszd.com/yewu13/v1/betOrder/bet"
         # data_bet
         # 保留两位小数，不够补 0。重要：必须2位，服务器大概率是根据此字符串进行对比的
         oddFinally = "%.02f" % (round((self.odds - 100000) / 100000.0, 2))

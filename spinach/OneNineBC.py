@@ -5,9 +5,15 @@ from config import USER_SESSION_19
 from config import USER_AUTH_19
 from config import MODE_GQ
 from config import DOMAIN_19
+from config import IS_WB_19
 import json
 import time
 import bc_print
+
+if IS_WB_19:
+    MAX_FACTOR = 0.23911
+else:
+    MAX_FACTOR = 0.08
 
 
 # 获取19比赛队伍 ID
@@ -152,6 +158,10 @@ class OneNineBC(BaseBC):
     # 核实赔率是否有变动
     def check_bet(self, game, pk, bet, iszd, ratio, money):
         print("**********************************************************************")
+        # 返回结果，“check” 是否核实成功，“money” 最大可下注金额
+        result = {}
+        result["check"] = False
+        
         print(f"{game['type']} 平台赔率: {ratio} 核对...... 盘口：{bet}")
         # 获取下注详情信息
         url_bet_detail = f"https://{DOMAIN_19}/api/betslip/betslip"
@@ -192,28 +202,33 @@ class OneNineBC(BaseBC):
         # Selection 字段可能不存在
         if self.resp_json_bet[0]["market"]["Changeset"]["Selection"] == None:
             bc_print.print_red(f"Selection = null, 无法下注")
-            return False
+            return result
         # 提取字段。判断赔率是否改变
         self.trueOdds = self.resp_json_bet[0]["market"]["Changeset"]["Selection"]["TrueOdds"]
         # 确认盘口是否还可正常下注
         is_removed = self.resp_json_bet[0]["market"]["Changeset"]["IsRemoved"]
         if is_removed:
             bc_print.print_red(f"is_removed：true, 无法下注")
-            return False
+            return result
         is_removed_1 = self.resp_json_bet[0]["market"]["Changeset"]["Selection"]["IsRemoved"]
         if is_removed_1:
             bc_print.print_red(f"is_removed 2 ：true, 无法下注")
-            return False
+            return result
         is_suspended = self.resp_json_bet[0]["market"]["Changeset"]["IsSuspended"]
         if is_suspended:
             bc_print.print_red(f"is_suspended：true, 无法下注") # 该情况多见，盘口临时锁定
-            return False
+            return result
         # 确认是否满足最大下注额度
-        self.maxStake = round(8.4360248 * self.resp_json_bet[0]["market"]["Changeset"]
+        self.maxStake = round(MAX_FACTOR * self.resp_json_bet[0]["market"]["Changeset"]
                          ["Selection"]["Settings"]["MaxWin"] / (self.trueOdds - 1), 2)
+        bc_print.print_red(f"最大下注金额：{self.maxStake},预下注金额：{money}")
+        # 最大下注额低于 100，不下注
+        if self.maxStake < 100:
+            return result
         if money > self.maxStake:
-            bc_print.print_red(f"最大下注金额：{self.maxStake},预下注金额：{money},无法下注")
-            return False
+            result["money"] = int(self.maxStake / 10) * 10
+        else:
+            result["money"] = money
         # 确认盘口是否正确,存在selectionId相同但盘口已经发生变化的情况，吃了大亏 *********************************
         self.points = self.resp_json_bet[0]["market"]["Changeset"]["Selection"]["Points"]
         if self.selectionId[len(self.selectionId) - 3] == 'A': # 代表客队
@@ -224,15 +239,16 @@ class OneNineBC(BaseBC):
         if bet != cur_bet:
             bc_print.print_red(f"获取数据出错，盘口不一致.")
             print(self.resp_json_bet)
-            return False
+            return result
         print(self.resp_json_bet)
         # print(f"获取最新赔率: {self.trueOdds}")
         hk_odds = round(self.trueOdds - 1.0, 2)
         print(f"获取最新赔率hk: {hk_odds}")
         if ratio == hk_odds:
-            return True
+            result["check"] = True
+            return result
         else:
-            return False
+            return result
 
     # 开始下注
     def auto_bet(self, money):
