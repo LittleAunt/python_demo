@@ -15,8 +15,8 @@ ONCE_CASH = 6000 # 每次交易买卖的大概资金
 INITIAL_CASH = 50000 # 初始建仓金额
 
 STOCK_CODE = "601688" # 模拟的股票代码
-STOCK_COUNT = 228 # 股票交易次数
-STOCK_DATE = "2023-04-10" # 股票交易日期 2023-08-09
+STOCK_COUNT = 550 # 股票交易次数
+STOCK_DATE = "2024-07-26" # 股票交易日期 2023-08-09
 
 # 持仓数据结构字段
 INVEST_PRICE = "price" # 交易的价格
