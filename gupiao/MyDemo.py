@@ -73,7 +73,7 @@ def simulated_invest(df, target_change):
     # sys.exit() # 直接结束脚本
 
     # 开始遍历每天的股票数据，根据涨跌幅进行买卖
-    for i in range(1, len(df)):
+    for i in range(2, len(df)):
         # 计算当天的涨跌幅度
         previous_close = df.iloc[i-1]['close']
         current_close = df.iloc[i]['close']

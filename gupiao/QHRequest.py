@@ -35,6 +35,7 @@ def get_price_day_online(code, cachefile):
     return qh_list
     
 def get_price_day(code, start_date, end_date, cache=True): # cache 指是否要使用缓存，每天的数据都是固定的，抓取后可存在本地，下次获取直接从本地取
+    print(f"开始日期：{start_date}，结束日期：{end_date}")
     if cache:
         # 获取当天的日期
         today_date = datetime.now().strftime('%Y-%m-%d')
@@ -63,7 +64,7 @@ def get_price_day(code, start_date, end_date, cache=True): # cache 指是否要�
     df.day = pd.to_datetime(df.day)
     df.set_index(["day"], inplace=True)
     df.index.name = ""  # 处理索引
-    
+    # 过滤想要的日期时间段数据
     mask = (df.index >= start_date) & (df.index <= end_date)
     filtered_df = df[mask]
     return filtered_df
