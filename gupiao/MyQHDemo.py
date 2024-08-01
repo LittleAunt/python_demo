@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+# -------------------------- 模拟一个主连的交易 --------------------------#
 from  QHRequest import *
 from  MyTT import * 
 from MyQHCondition import *
@@ -61,7 +61,8 @@ def add_record(records, date, price, type, buy_count):
                 records.append({RECORD_DATE: date, RECORD_PRICE: price, RECORD_TYPE: type, RECORD_PROFIT: cal_profit(last_record[RECORD_PRICE], price, buy_count, False)})
 
 # 模拟交易，计算收益
-def simulated_invest(code, sd, ed, buy_count, show_table):
+def simulated_invest(code, sd, ed, buy_count, pre_invest_type, show_table):
+    print(f"开始日期：{sd}，结束日期：{ed}")
     records = [] # 交易记录列表
     con_mets = [] # 满足各种自定义条件的列表
     start_date = pd.to_datetime(sd) # 将字符串日期转换为 datetime 类型
@@ -76,12 +77,18 @@ def simulated_invest(code, sd, ed, buy_count, show_table):
     filtered_df = df[mask]
     # MACD 三项指标
     M_DIFF, M_DEA, M_MACD = MACD(df.close.values)
+    
     # 遍历表格，计算收益
-    for i in range(3, len(df)):  # 最多取前三天的数据对比，所以从 3 开始
+    for i in range(0, len(df)):
         if (df.index[i] < start_date):
             continue
         cur_row = df.iloc[i] # 当天
         cur_date = df.index[i]
+        # 取第一天数据，如果前一个主连结束时被迫平仓，这个主连开始第一天开盘便接着买入
+        if cur_date == start_date:
+            if pre_invest_type != TYPE_P:
+                add_record(records, cur_date, cur_row.open, pre_invest_type, buy_count)
+                continue
         
         # 1. MACD 金叉、死叉
         if MACD_JC(M_DIFF, M_DEA, i):
@@ -139,7 +146,8 @@ def simulated_invest(code, sd, ed, buy_count, show_table):
                 result_next_type = second_last_record[RECORD_TYPE]
         else:
             result_next_type = records[-1][RECORD_TYPE]
-        
+    
+    print(f"交易记录: {records}")
     # 总收益
     total_profit = sum(item[RECORD_PROFIT] for item in records)
     #------------------------------------------ 图表显示 ---------------------------------------#
@@ -183,5 +191,5 @@ def simulated_invest(code, sd, ed, buy_count, show_table):
 
 if __name__ == "__main__":
     # 期货代码、起始日期、结束日期、交易手数、是否显示表格图形
-    result = simulated_invest("233773", "2023-12-11", "2024-03-22", 1, True)
+    result = simulated_invest("233773", "2019-12-18", "2020-04-16", 1, TYPE_P, True)
     print(f"result: {result}")

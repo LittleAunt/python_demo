@@ -35,7 +35,7 @@ def get_price_day_online(code, cachefile):
     return qh_list
     
 def get_price_day(code, start_date, end_date, cache=True): # cache 指是否要使用缓存，每天的数据都是固定的，抓取后可存在本地，下次获取直接从本地取
-    print(f"开始日期：{start_date}，结束日期：{end_date}")
+    # print(f"开始日期：{start_date}，结束日期：{end_date}")
     if cache:
         # 获取当天的日期
         today_date = datetime.now().strftime('%Y-%m-%d')
@@ -47,7 +47,7 @@ def get_price_day(code, start_date, end_date, cache=True): # cache 指是否要�
             # 如果文件存在，从文件中读取 JSON 数据
             with open(filename, 'r', encoding='utf-8') as file:
                 qh_list = json.load(file)
-                print(f"数据从本地文件中读取：{qh_list[0]}, {qh_list[-1]}")
+                # print(f"数据从本地文件中读取：{qh_list[0]}, {qh_list[-1]}")
         else:
             qh_list = get_price_day_online(code, filename)
             print(f"数据从服务端获取：{qh_list[0]}, {qh_list[-1]}")
