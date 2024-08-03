@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-# -------------------------- 模拟整个纯碱主连的交易 --------------------------#
-from MyQHDemo import *
+# -------------------------- 模拟整个纯碱主连的交易，用的是主连的 K 线数据 --------------------------#
+from CJZLSimulated import *
 
 KEY_START_DATE = "start_date"
 KEY_END_DATE = "end_date"

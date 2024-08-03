@@ -52,7 +52,7 @@ def GREEN_K3(OPEN, CLOSE, I):
         day2 = CLOSE[I - 2] - OPEN[I - 2] < 0
         return day0 and day1 and day2
 
-MACD_DIFF_RANGE = 0.5
+MACD_DIFF_RANGE = 0
 # 三连绿后 MACD 线比前一天高, 转多
 def MACD_UP_AFTER_GREEN_K3(OPEN, CLOSE, MACD, I):
     if len(MACD) < 2:
@@ -88,17 +88,17 @@ def MACD_DOWN_V(MACD, DEA, I):
         return MACD[I] < DEA[I] and MACD[I] < 0 and MACD[I - 1] < 0 and MACD[I] - MACD[I - 1] < -1 * MACD_DIFF_RANGE and MACD[I - 1] - MACD[I - 2] > MACD_DIFF_RANGE
 
 
-CP_MAX_MACD = 12 # 触碰反转 V 字中间 MACD 判断最大值
+CP_MAX_MACD = 20 # 触碰反转 V 字中间 MACD 判断最大值
 # 触碰反转做多。MACD 呈 V 字型，中间值小于 12。相当于 DIFF DEA 差点碰到一起。触多
 def MACD_UP_V_CP(MACD, I):
     if len(MACD) < 3:
         return False
     else:
-        return MACD[I] > 0 and MACD[I - 1] > 0 and MACD[I] > MACD[I - 1] and MACD[I - 1] < MACD[I - 2] and MACD[I - 1] < CP_MAX_MACD
+        return MACD[I] > 0 and MACD[I - 1] > 0 and MACD[I] - MACD[I - 1] > MACD_DIFF_RANGE and MACD[I - 1] - MACD[I - 2] < -1 * MACD_DIFF_RANGE and MACD[I - 1] < CP_MAX_MACD
 
 # 触碰反转做空。触空
 def MACD_DOWN_V_CP(MACD, I):
     if len(MACD) < 3:
         return False
     else:
-        return MACD[I] < 0 and MACD[I - 1] < 0 and MACD[I] < MACD[I - 1] and MACD[I - 1] > MACD[I - 2] and MACD[I - 1] > -1 * CP_MAX_MACD
+        return MACD[I] < 0 and MACD[I - 1] < 0 and MACD[I] - MACD[I - 1] < -1 * MACD_DIFF_RANGE and MACD[I - 1] - MACD[I - 2] > MACD_DIFF_RANGE and MACD[I - 1] > -1 * CP_MAX_MACD
