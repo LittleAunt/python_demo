@@ -24,6 +24,7 @@ RESULT_PROFIT = "result_profit"
 RESULT_START_DATE = "result_start_date"
 RESULT_END_DATE = "result_end_date"
 RESULT_NEXT_TYPE = "result_next_type" # 下一个主连开始应该做多、空、平
+RESULT_RECORDS = "result_records"
 
 # 计算收益。根据 duo 判断是做多还是空
 def cal_profit(last_price, cur_price, buy_count, duo):
@@ -78,9 +79,10 @@ def simulated_invest(code, sd, ed, buy_count, pre_invest_type, show_table):
     # MACD 三项指标
     M_DIFF, M_DEA, M_MACD = MACD(df.close.values)
     
+    newstart_date = start_date + timedelta(days=5)
     # 遍历表格，计算收益
     for i in range(0, len(df)):
-        if (df.index[i] < start_date):
+        if (df.index[i] <= newstart_date):
             continue
         cur_row = df.iloc[i] # 当天
         cur_date = df.index[i]
@@ -150,6 +152,7 @@ def simulated_invest(code, sd, ed, buy_count, pre_invest_type, show_table):
     print(f"交易记录: {records}")
     # 总收益
     total_profit = sum(item[RECORD_PROFIT] for item in records)
+    print(f"总收益：{total_profit}")
     #------------------------------------------ 图表显示 ---------------------------------------#
     if show_table:        
         SHEET_CLOSE = filtered_df.close.values
@@ -187,9 +190,9 @@ def simulated_invest(code, sd, ed, buy_count, pre_invest_type, show_table):
         # 显示图形
         plt.show()
     # 返回总收益
-    return {RESULT_PROFIT: total_profit, RESULT_START_DATE: sd, RESULT_END_DATE: ed, RESULT_NEXT_TYPE: result_next_type}
+    return {RESULT_PROFIT: total_profit, RESULT_START_DATE: sd, RESULT_END_DATE: ed, RESULT_NEXT_TYPE: result_next_type, RESULT_RECORDS: records}
 
 if __name__ == "__main__":
     # 期货代码、起始日期、结束日期、交易手数、是否显示表格图形
-    result = simulated_invest("233773", "2019-12-18", "2020-04-16", 1, TYPE_P, True)
+    result = simulated_invest("233773", "2023-12-05", "2024-03-22", 1, TYPE_P, True)
     print(f"result: {result}")
