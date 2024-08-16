@@ -34,8 +34,8 @@ BUY_COUNT = 1
 
 def simulated_all(show_table):
     result_list = []
-    # start_index = len(CJZL_LIST) - 2
-    start_index = 6
+    # start_index = len(CJZL_LIST) - 3
+    start_index = 0
     for i in range(start_index, len(CJZL_LIST)):
         # 如果是第一次交易，直接用主连数据，上一次的交易类型相当于平仓
         if i == start_index:
@@ -78,7 +78,6 @@ def simulated_all(show_table):
                         pre_host_records.append(new_record)
                 if pre_sub_record[INVEST_TYPE] != pre_host_last_record[INVEST_TYPE]:
                     next_start_date = pre_sub_record[RECORD_DATE].strftime('%Y-%m-%d')
-                    print(f"&&&&&&& 开始日期： {next_start_date}")
                     next_type = pre_sub_record[INVEST_TYPE]
                     break
             print(f"新增的交易记录： {new_record}")
@@ -91,12 +90,15 @@ def simulated_all(show_table):
                 forced_liquidation = True
             else:
                 forced_liquidation = False
-            print(f"&&&&&&& 开始日期 &&&&&： {next_start_date}")
             result = simulated_invest(CODE_ZL, next_start_date, CJZL_LIST[i][KEY_END_DATE], BUY_COUNT, next_type, False, forced_liquidation)    
             # print(f"######## result={result}")            
         result_list.append(result)
         
-    # print(result_list)
+    # 打印所有交易记录
+    for i in range(0, len(result_list)):
+        print(f"############# 收益： {result_list[i][RESULT_PROFIT]}")
+        for j in range(0, len(result_list[i][RESULT_RECORDS])):
+            print(result_list[i][RESULT_RECORDS][j])
     # 找出所有交易记录中最大和最小的两条记录
     max_record = max(result_list[0][RESULT_RECORDS], key=lambda x: x[RECORD_PROFIT])
     min_record = min(result_list[0][RESULT_RECORDS], key=lambda x: x[RECORD_PROFIT])

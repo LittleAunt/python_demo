@@ -53,31 +53,31 @@ def condition_matched(con_mets, cur_date, M_DIFF, M_DEA, M_MACD, OPEN, CLOSE, i)
         con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "PK", INVEST_TYPE: TYPE_P}) # 平空
         matched = True
     # 3. 三连红、三连绿
-    if RED_K3(OPEN, CLOSE, i):
-        con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "3D", INVEST_TYPE: TYPE_D}) # 三多
-        matched = True
-    if GREEN_K3(OPEN, CLOSE, i):
-        con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "3K", INVEST_TYPE: TYPE_K}) # 三空
-        matched = True
-    # 4. 反转做多、做空。三连绿后，MACD线比前一天高               (需设定范围，高 0.1 也是高)
-    if MACD_UP_AFTER_GREEN_K3(OPEN, CLOSE, M_MACD, i):
-        con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "ZD0", INVEST_TYPE: TYPE_D}) # 转多0
-        matched = True
-    if MACD_DOWN_AFTER_RED_K3(OPEN, CLOSE, M_MACD, i):
-        con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "ZK0", INVEST_TYPE: TYPE_K}) # 转空0
-        matched = True
+    # if RED_K3(OPEN, CLOSE, i):
+    #     con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "3D", INVEST_TYPE: TYPE_D}) # 三多
+    #     matched = True
+    # if GREEN_K3(OPEN, CLOSE, i):
+    #     con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "3K", INVEST_TYPE: TYPE_K}) # 三空
+    #     matched = True
+    # # 4. 反转做多、做空。三连绿后，MACD线比前一天高               (需设定范围，高 0.1 也是高)
+    # if MACD_UP_AFTER_GREEN_K3(OPEN, CLOSE, M_MACD, i):
+    #     con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "ZD0", INVEST_TYPE: TYPE_D}) # 转多0
+    #     matched = True
+    # if MACD_DOWN_AFTER_RED_K3(OPEN, CLOSE, M_MACD, i):
+    #     con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "ZK0", INVEST_TYPE: TYPE_K}) # 转空0
+    #     matched = True
     # 5. 反转做多、做空。MACD首次大于前一天，MACD未溢出           (需设定范围，高 0.1 也是高)
-    if MACD_UP_V(M_MACD, M_DEA, i):
+    if MACD_UP_V(M_MACD, M_DIFF, M_DEA, i):
         con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "ZD1", INVEST_TYPE: TYPE_D}) # 转多1
         matched = True
-    if MACD_DOWN_V(M_MACD, M_DEA, i):
+    if MACD_DOWN_V(M_MACD, M_DIFF, M_DEA, i):
         con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "ZK1", INVEST_TYPE: TYPE_K}) # 转空1
         matched = True
     # 6. 触碰反转做多，做空。MACD 呈 V 字型，中间值小于 12。相当于 DIFF DEA 差点碰到一起。 (需设定范围，高 0.1 也是高)
-    if MACD_UP_V_CP(M_MACD, i):
+    if MACD_UP_V_CP(M_MACD, M_DIFF, M_DEA, i):
         con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "CD", INVEST_TYPE: TYPE_D}) # 触多
         matched = True
-    if MACD_DOWN_V_CP(M_MACD, i):
+    if MACD_DOWN_V_CP(M_MACD, M_DIFF, M_DEA, i):
         con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "CK", INVEST_TYPE: TYPE_K}) # 触空
         matched = True
     return matched
@@ -150,7 +150,7 @@ def simulated_invest(code, sd, ed, buy_count, first_type, show_table, forced_liq
                 add_record(records, df.index[-1], last_row.close, TYPE_P, buy_count)
                 print("################################# 最后一笔直接平仓")
                 
-    print(f"{code}: ###### 交易记录: {records}")
+    # print(f"{code}: ###### 交易记录: {records}")
     # 总收益
     total_profit = sum(item[RECORD_PROFIT] for item in records)
     print(f"总收益：{total_profit}")
@@ -173,15 +173,13 @@ def simulated_invest(code, sd, ed, buy_count, first_type, show_table, forced_liq
         for i in range(len(cm_filtered_df)):
             con_date = cm_filtered_df.iloc[i][CON_MET_DATE]
             sheet_index = SHEET_DATE.get_loc(con_date)
-            print(f"sheet_index={sheet_index}")
             plt.annotate(f"{con_date.date()}({cm_filtered_df.iloc[i][CON_MET_MSG]})", (SHEET_DATE[sheet_index], SHEET_CLOSE[sheet_index]), textcoords="offset points", xytext=(0,10), ha='center', color='purple', fontsize=8)
         # 折线图中显示每次交易记录
         for i in range(len(records)):
             print(f"record={i}, {records[i]}")
             rec_date = records[i][RECORD_DATE]
             sheet_index = SHEET_DATE.get_loc(rec_date)
-            print(f"sheet_index={sheet_index}")
-            plt.annotate(f"{rec_date.date()}({records[i][INVEST_TYPE]})({records[i][RECORD_PROFIT]})", (SHEET_DATE[sheet_index], SHEET_CLOSE[sheet_index]), textcoords="offset points", xytext=(0,20), ha='center', color='red', fontsize=8)
+            plt.annotate(f"{rec_date.date()}({records[i][INVEST_TYPE]})({records[i][RECORD_PROFIT]})", (SHEET_DATE[sheet_index], SHEET_CLOSE[sheet_index]), textcoords="offset points", xytext=(0,20), ha='center', color='red', fontsize=12)
         # 添加标题和标签
         plt.title("CJZL", fontsize=14)
         init_info = f"Profit: {total_profit} ({start_date} ~ {end_date})(Count:{len(filtered_df)})"
@@ -198,5 +196,5 @@ def simulated_invest(code, sd, ed, buy_count, first_type, show_table, forced_liq
 
 if __name__ == "__main__":
     # 期货代码、起始日期、结束日期、交易手数、是否显示表格图形
-    result = simulated_invest("233773", "2023-12-05", "2024-03-22", 1, TYPE_P, True, True)
+    result = simulated_invest("233773", "2024-03-25", "2024-07-31", 1, TYPE_P, True, True)
     print(f"result: {result}")

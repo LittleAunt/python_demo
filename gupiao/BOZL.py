@@ -2,10 +2,7 @@
 # -------------------------- 模拟整个纯碱主连的交易，用的是主连的 K 线数据 --------------------------#
 from CJZLSimulated import *
 
-CODE_ZL = "233773"
-CODE_01 = "233774"
-CODE_05 = "233778"
-CODE_09 = "233782"
+CODE_BL = "166080"
 
 KEY_CODE = "code"
 KEY_START_DATE = "start_date"
@@ -13,20 +10,20 @@ KEY_END_DATE = "end_date"
 KEY_MAX_DATE = "max_date"
 # 所有的主连对应的时间段
 CJZL_LIST = [
-    {KEY_START_DATE: "2019-12-18", KEY_END_DATE: "2020-04-16"},
-    {KEY_START_DATE: "2020-04-17", KEY_END_DATE: "2020-08-18"},
-    {KEY_START_DATE: "2020-08-19", KEY_END_DATE: "2020-12-17"},
-    {KEY_START_DATE: "2020-12-18", KEY_END_DATE: "2021-04-08"},
-    {KEY_START_DATE: "2021-04-09", KEY_END_DATE: "2021-07-28"},
-    {KEY_START_DATE: "2021-07-29", KEY_END_DATE: "2021-12-01"},
-    {KEY_START_DATE: "2021-12-02", KEY_END_DATE: "2022-03-24"},
-    {KEY_START_DATE: "2022-03-25", KEY_END_DATE: "2022-08-03"},
-    {KEY_START_DATE: "2022-08-04", KEY_END_DATE: "2022-12-01"},
-    {KEY_START_DATE: "2022-12-02", KEY_END_DATE: "2023-03-23"},
-    {KEY_START_DATE: "2023-03-24", KEY_END_DATE: "2023-08-02"},
-    {KEY_START_DATE: "2023-08-03", KEY_END_DATE: "2023-12-04"},
-    {KEY_START_DATE: "2023-12-05", KEY_END_DATE: "2024-03-22"},
-    {KEY_START_DATE: "2024-03-25", KEY_END_DATE: "2024-07-31"}
+    {KEY_START_DATE: "2019-12-10", KEY_END_DATE: "2020-04-01"},
+    {KEY_START_DATE: "2020-04-02", KEY_END_DATE: "2020-08-10"},
+    {KEY_START_DATE: "2020-08-11", KEY_END_DATE: "2020-12-11"},
+    {KEY_START_DATE: "2020-12-14", KEY_END_DATE: "2021-04-07"},
+    {KEY_START_DATE: "2021-04-08", KEY_END_DATE: "2021-07-23"},
+    {KEY_START_DATE: "2021-07-26", KEY_END_DATE: "2021-12-09"},
+    {KEY_START_DATE: "2021-12-10", KEY_END_DATE: "2022-03-22"},
+    {KEY_START_DATE: "2022-03-23", KEY_END_DATE: "2022-08-11"},
+    {KEY_START_DATE: "2022-08-12", KEY_END_DATE: "2022-12-08"},
+    {KEY_START_DATE: "2022-12-09", KEY_END_DATE: "2023-04-10"},
+    {KEY_START_DATE: "2023-04-11", KEY_END_DATE: "2023-08-11"},
+    {KEY_START_DATE: "2023-08-14", KEY_END_DATE: "2023-12-07"},
+    {KEY_START_DATE: "2023-12-08", KEY_END_DATE: "2024-04-08"},
+    {KEY_START_DATE: "2024-04-09", KEY_END_DATE: "2024-07-31"}
 ]
 
 def simulated_all(show_table):
@@ -34,7 +31,7 @@ def simulated_all(show_table):
     # start_index = len(CJZL_LIST) - 3
     start_index = 0
     for i in range(start_index, len(CJZL_LIST)):
-        result = simulated_invest(CODE_ZL, CJZL_LIST[i][KEY_START_DATE], CJZL_LIST[i][KEY_END_DATE], 1, TYPE_P, False)
+        result = simulated_invest(CODE_BL, CJZL_LIST[i][KEY_START_DATE], CJZL_LIST[i][KEY_END_DATE], 1, TYPE_P, False)
         # if i == start_index:
         #     result = simulated_invest("233773", CJZL_LIST[i][KEY_START_DATE], CJZL_LIST[i][KEY_END_DATE], 1, TYPE_P, False)
         # else:
