@@ -44,7 +44,7 @@ def RED_K3(DIFF, OPEN, CLOSE, I):
         day0 = CLOSE[I] - OPEN[I] > 0
         day1 = CLOSE[I - 1] - OPEN[I - 1] > 0
         day2 = CLOSE[I - 2] - OPEN[I - 2] > 0
-        return day0 and day1 and day2
+        return day0 and day1 and day2 and DIFF[I] > 0
 
 # K线三连绿，做空
 def GREEN_K3(DIFF, OPEN, CLOSE, I):
@@ -54,7 +54,7 @@ def GREEN_K3(DIFF, OPEN, CLOSE, I):
         day0 = CLOSE[I] - OPEN[I] < 0
         day1 = CLOSE[I - 1] - OPEN[I - 1] < 0
         day2 = CLOSE[I - 2] - OPEN[I - 2] < 0
-        return day0 and day1 and day2
+        return day0 and day1 and day2 and DIFF[I] < 0
 
 MACD_DIFF_RANGE = 0
 # 三连绿后 MACD 线比前一天高, 转多

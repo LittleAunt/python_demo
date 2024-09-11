@@ -2,7 +2,8 @@
 # -------------------------- 模拟一个主连的交易 --------------------------#
 from  QHRequest import *
 from  MyTT import * 
-from MyQHCondition import *
+# from MyQHCondition import *
+from ProCondition import *
 from datetime import timedelta
 import pandas as pd
 import numpy as np
@@ -48,26 +49,26 @@ def condition_matched(con_mets, cur_date, M_DIFF, M_DEA, M_MACD, OPEN, CLOSE, i)
         con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "SC", INVEST_TYPE: TYPE_K}) # 死叉
         matched = True
     # 2. MACD 溢出
-    # if MACD_UP_YC(M_MACD, M_DEA, i):
-    #     con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "PD", INVEST_TYPE: TYPE_P}) # 平多
-    #     matched = True
-    # if MACD_DOWN_YC(M_MACD, M_DEA, i):
-    #     con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "PK", INVEST_TYPE: TYPE_P}) # 平空
-    #     matched = True
+    if MACD_UP_YC(M_MACD, M_DEA, i):
+        con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "PD", INVEST_TYPE: TYPE_P}) # 平多
+        matched = True
+    if MACD_DOWN_YC(M_MACD, M_DEA, i):
+        con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "PK", INVEST_TYPE: TYPE_P}) # 平空
+        matched = True
     # 3. 三连红、三连绿
-    # if RED_K3(OPEN, CLOSE, i):
-    #     con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "3D", INVEST_TYPE: TYPE_D}) # 三多
-    #     matched = True
-    # if GREEN_K3(OPEN, CLOSE, i):
-    #     con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "3K", INVEST_TYPE: TYPE_K}) # 三空
-    #     matched = True
-    # # 4. 反转做多、做空。三连绿后，MACD线比前一天高               (需设定范围，高 0.1 也是高)
-    # if MACD_UP_AFTER_GREEN_K3(OPEN, CLOSE, M_MACD, i):
-    #     con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "ZD0", INVEST_TYPE: TYPE_D}) # 转多0
-    #     matched = True
-    # if MACD_DOWN_AFTER_RED_K3(OPEN, CLOSE, M_MACD, i):
-    #     con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "ZK0", INVEST_TYPE: TYPE_K}) # 转空0
-    #     matched = True
+    if RED_K3(M_DIFF, OPEN, CLOSE, i):
+        con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "3D", INVEST_TYPE: TYPE_D}) # 三多
+        matched = True
+    if GREEN_K3(M_DIFF, OPEN, CLOSE, i):
+        con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "3K", INVEST_TYPE: TYPE_K}) # 三空
+        matched = True
+    # 4. 反转做多、做空。三连绿后，MACD线比前一天高               (需设定范围，高 0.1 也是高)
+    if MACD_UP_AFTER_GREEN_K3(M_DIFF, OPEN, CLOSE, M_MACD, i):
+        con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "ZD0", INVEST_TYPE: TYPE_D}) # 转多0
+        matched = True
+    if MACD_DOWN_AFTER_RED_K3(M_DIFF, OPEN, CLOSE, M_MACD, i):
+        con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "ZK0", INVEST_TYPE: TYPE_K}) # 转空0
+        matched = True
     # 5. 反转做多、做空。MACD首次大于前一天，MACD未溢出           (需设定范围，高 0.1 也是高)
     if MACD_UP_V(M_MACD, M_DIFF, M_DEA, i):
         con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "ZD1", INVEST_TYPE: TYPE_D}) # 转多1
