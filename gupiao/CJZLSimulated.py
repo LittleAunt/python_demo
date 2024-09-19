@@ -9,6 +9,11 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
+CODE_ZL = "233773"
+CODE_01 = "233774"
+CODE_05 = "233778"
+CODE_09 = "233782"
+
 # 交易类型。0,1,2 分别代表做多、做空、平仓
 INVEST_TYPE = "invest_type" 
 TYPE_D = 0
@@ -49,10 +54,10 @@ def condition_matched(con_mets, cur_date, M_DIFF, M_DEA, M_MACD, OPEN, CLOSE, i)
         con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "SC", INVEST_TYPE: TYPE_K}) # 死叉
         matched = True
     # 2. MACD 溢出
-    if MACD_UP_YC(M_MACD, M_DEA, i):
+    if MACD_UP_YC(M_MACD, M_DIFF, M_DEA, i):
         con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "PD", INVEST_TYPE: TYPE_P}) # 平多
         matched = True
-    if MACD_DOWN_YC(M_MACD, M_DEA, i):
+    if MACD_DOWN_YC(M_MACD, M_DIFF, M_DEA, i):
         con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "PK", INVEST_TYPE: TYPE_P}) # 平空
         matched = True
     # 3. 三连红、三连绿
@@ -134,7 +139,7 @@ def simulated_invest(code, sd, ed, buy_count, pre_invest_type, show_table):
     mask = (df.index >= start_date) & (df.index <= end_date)
     filtered_df = df[mask]
     # MACD 三项指标
-    M_DIFF, M_DEA, M_MACD = MACD(df.close.values)
+    M_DIFF, M_DEA, M_MACD = MACD(df.close.values, 12, 26, 8)
     
     # newstart_date = start_date + timedelta(days=5)
     start_index = 0
@@ -217,5 +222,6 @@ def simulated_invest(code, sd, ed, buy_count, pre_invest_type, show_table):
 
 if __name__ == "__main__":
     # 期货代码、起始日期、结束日期、交易手数、是否显示表格图形
-    result = simulated_invest("166080", "2021-07-26", "2021-12-09", 1, TYPE_P, True)
+    current_date = datetime.now().strftime("%Y-%m-%d")
+    result = simulated_invest(CODE_ZL, "2024-08-15", current_date, 1, TYPE_P, True)
     print(f"result: {result}")

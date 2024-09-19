@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-CP_MAX_MACD = 15 # 触碰反转 V 字中间 MACD 判断最大值
-ZP_MAX_MACD = 15 # 未溢出，转多转空， V 字中间 MACD 判断最大值
+CP_MAX_MACD = 10 # 触碰反转 V 字中间 MACD 判断最大值
+ZP_MAX_MACD = 10 # 未溢出，转多转空， V 字中间 MACD 判断最大值
 Z2_MAX_MACD = 35 # 转2
 
 # A 下穿 B，I 是指那一天的 index
@@ -27,12 +27,12 @@ def MACD_SC(DIFF, DEA, I):
     return CROSSDOWN(DIFF, DEA, I)
 
 # MACD 上溢出,平多
-def MACD_UP_YC(MACD, DEA, I):
+def MACD_UP_YC(MACD, DIFF, DEA, I):
     cross = CROSSDOWN(MACD, DEA, I)
     return cross and MACD[I] > 0 and DEA[I] > 0
 
 # MACD 下溢出,平空
-def MACD_DOWN_YC(MACD, DEA, I):
+def MACD_DOWN_YC(MACD, DIFF, DEA, I):
     cross = CROSSUP(MACD, DEA, I)
     return cross and MACD[I] < 0 and DEA[I] < 0
 
@@ -44,7 +44,8 @@ def RED_K3(DIFF, OPEN, CLOSE, I):
         day0 = CLOSE[I] - OPEN[I] > 0
         day1 = CLOSE[I - 1] - OPEN[I - 1] > 0
         day2 = CLOSE[I - 2] - OPEN[I - 2] > 0
-        return day0 and day1 and day2 and DIFF[I] > 0
+        day3 = CLOSE[I - 3] - OPEN[I - 3] < 0
+        return day0 and day1 and day2 and DIFF[I] > 0 and day3
 
 # K线三连绿，做空
 def GREEN_K3(DIFF, OPEN, CLOSE, I):
@@ -54,7 +55,8 @@ def GREEN_K3(DIFF, OPEN, CLOSE, I):
         day0 = CLOSE[I] - OPEN[I] < 0
         day1 = CLOSE[I - 1] - OPEN[I - 1] < 0
         day2 = CLOSE[I - 2] - OPEN[I - 2] < 0
-        return day0 and day1 and day2 and DIFF[I] < 0
+        day3 = CLOSE[I - 3] - OPEN[I - 3] > 0
+        return day0 and day1 and day2 and DIFF[I] < 0 and day3
 
 MACD_DIFF_RANGE = 0
 # 三连绿后 MACD 线比前一天高, 转多
@@ -62,7 +64,12 @@ def MACD_UP_AFTER_GREEN_K3(DIFF, OPEN, CLOSE, MACD, I):
     if len(MACD) < 2:
         return False
     else:
-        green_k3 = GREEN_K3(DIFF, OPEN, CLOSE, I - 1)
+        day0 = CLOSE[I - 1] - OPEN[I - 1] < 0
+        day1 = CLOSE[I - 2] - OPEN[I - 2] < 0
+        day2 = CLOSE[I - 3] - OPEN[I - 3] < 0
+        day3 = CLOSE[I - 4] - OPEN[I - 4] > 0
+        green_k3 = day0 and day1 and day2 and DIFF[I - 1] < 0
+        # green_k3 = GREEN_K3(DIFF, OPEN, CLOSE, I - 1)
         green_k3_1 = GREEN_K3(DIFF, OPEN, CLOSE, I - 2)
         c_macd = MACD[I]
         p_macd = MACD[I - 1]
@@ -77,7 +84,12 @@ def MACD_DOWN_AFTER_RED_K3(DIFF, OPEN, CLOSE, MACD, I):
     if len(MACD) < 2:
         return False
     else :
-        red_k3 = RED_K3(DIFF, OPEN, CLOSE, I - 1)
+        day0 = CLOSE[I - 1] - OPEN[I - 1] > 0
+        day1 = CLOSE[I - 2] - OPEN[I - 2] > 0
+        day2 = CLOSE[I - 3] - OPEN[I - 3] > 0
+        day3 = CLOSE[I - 4] - OPEN[I - 4] < 0
+        red_k3 = day0 and day1 and day2 and DIFF[I - 1] > 0
+        # red_k3 = RED_K3(DIFF, OPEN, CLOSE, I - 1)
         red_k3_1 = RED_K3(DIFF, OPEN, CLOSE, I - 2)
         c_macd = MACD[I]
         p_macd = MACD[I - 1]
