@@ -34,6 +34,9 @@ RESULT_END_DATE = "result_end_date"
 RESULT_NEXT_TYPE = "result_next_type" # 下一个主连开始应该做多、空、平
 RESULT_RECORDS = "result_records"
 
+# 是否只根据金叉死叉进行判断
+ONLY_JC_SC = False
+
 # 计算收益。根据 duo 判断是做多还是空
 def cal_profit(last_price, cur_price, buy_count, duo):
     last_amount = last_price * buy_count * 20
@@ -42,6 +45,7 @@ def cal_profit(last_price, cur_price, buy_count, duo):
         return round(last_amount * change, 2)
     else:
         return round(-1 * last_amount * change, 2)
+
 
 # 条件判断，是否满足自定义指标要求
 def condition_matched(con_mets, cur_date, M_DIFF, M_DEA, M_MACD, OPEN, CLOSE, i):
@@ -53,47 +57,44 @@ def condition_matched(con_mets, cur_date, M_DIFF, M_DEA, M_MACD, OPEN, CLOSE, i)
     if MACD_SC(M_DIFF, M_DEA, i):
         con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "SC", INVEST_TYPE: TYPE_K}) # 死叉
         matched = True
+    # 是否只根据金叉死叉进行判断处理
+    if ONLY_JC_SC:
+        return matched
     # 2. MACD 溢出
-    # if MACD_UP_YC(M_MACD, M_DIFF, M_DEA, i):
-    #     con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "PD", INVEST_TYPE: TYPE_P}) # 平多
-    #     matched = True
-    # if MACD_DOWN_YC(M_MACD, M_DIFF, M_DEA, i):
-    #     con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "PK", INVEST_TYPE: TYPE_P}) # 平空
-    #     matched = True
+    if MACD_UP_YC(M_MACD, M_DIFF, M_DEA, i):
+        con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "PD", INVEST_TYPE: TYPE_P}) # 平多
+        matched = True
+    if MACD_DOWN_YC(M_MACD, M_DIFF, M_DEA, i):
+        con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "PK", INVEST_TYPE: TYPE_P}) # 平空
+        matched = True
     # 3. 三连红、三连绿
-    # if RED_K3(M_DIFF, OPEN, CLOSE, i):
-    #     con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "3D", INVEST_TYPE: TYPE_D}) # 三多
-    #     matched = True
-    # if GREEN_K3(M_DIFF, OPEN, CLOSE, i):
-    #     con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "3K", INVEST_TYPE: TYPE_K}) # 三空
-    #     matched = True
+    if RED_K3(M_DIFF, OPEN, CLOSE, i):
+        con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "3D", INVEST_TYPE: TYPE_D}) # 三多
+        matched = True
+    if GREEN_K3(M_DIFF, OPEN, CLOSE, i):
+        con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "3K", INVEST_TYPE: TYPE_K}) # 三空
+        matched = True
     # 4. 反转做多、做空。三连绿后，MACD线比前一天高               (需设定范围，高 0.1 也是高)
-    # if MACD_UP_AFTER_GREEN_K3(M_DIFF, OPEN, CLOSE, M_MACD, i):
-    #     con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "ZD0", INVEST_TYPE: TYPE_D}) # 转多0
-    #     matched = True
-    # if MACD_UP_AFTER_GREEN_K3_PRO(M_DIFF, OPEN, CLOSE, M_MACD, i):
-    #     con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "ZD0", INVEST_TYPE: TYPE_D}) # 转多0
-    #     matched = True
-    # if MACD_DOWN_AFTER_RED_K3(M_DIFF, OPEN, CLOSE, M_MACD, i):
-    #     con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "ZK0", INVEST_TYPE: TYPE_K}) # 转空0
-    #     matched = True
-    # if MACD_DOWN_AFTER_RED_K3_PRO(M_DIFF, OPEN, CLOSE, M_MACD, i):
-    #     con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "ZK0", INVEST_TYPE: TYPE_K}) # 转空0
-    #     matched = True
+    if MACD_UP_AFTER_GREEN_K3(M_DIFF, OPEN, CLOSE, M_MACD, i):
+        con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "ZD0", INVEST_TYPE: TYPE_D}) # 转多0
+        matched = True
+    if MACD_DOWN_AFTER_RED_K3(M_DIFF, OPEN, CLOSE, M_MACD, i):
+        con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "ZK0", INVEST_TYPE: TYPE_K}) # 转空0
+        matched = True
     # 5. 反转做多、做空。MACD首次大于前一天，MACD未溢出           (需设定范围，高 0.1 也是高)
-    # if MACD_UP_V(M_MACD, M_DIFF, M_DEA, i):
-    #     con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "ZD1", INVEST_TYPE: TYPE_D}) # 转多1
-    #     matched = True
-    # if MACD_DOWN_V(M_MACD, M_DIFF, M_DEA, i):
-    #     con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "ZK1", INVEST_TYPE: TYPE_K}) # 转空1
-    #     matched = True
+    if MACD_UP_V(M_MACD, M_DIFF, M_DEA, i):
+        con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "ZD1", INVEST_TYPE: TYPE_D}) # 转多1
+        matched = True
+    if MACD_DOWN_V(M_MACD, M_DIFF, M_DEA, i):
+        con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "ZK1", INVEST_TYPE: TYPE_K}) # 转空1
+        matched = True
     # 6. 触碰反转做多，做空。MACD 呈 V 字型，中间值小于 12。相当于 DIFF DEA 差点碰到一起。 (需设定范围，高 0.1 也是高)
-    # if MACD_UP_V_CP(M_MACD, M_DIFF, M_DEA, i):
-    #     con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "CD", INVEST_TYPE: TYPE_D}) # 触多
-    #     matched = True
-    # if MACD_DOWN_V_CP(M_MACD, M_DIFF, M_DEA, i):
-    #     con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "CK", INVEST_TYPE: TYPE_K}) # 触空
-    #     matched = True
+    if MACD_UP_V_CP(M_MACD, M_DIFF, M_DEA, i):
+        con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "CD", INVEST_TYPE: TYPE_D}) # 触多
+        matched = True
+    if MACD_DOWN_V_CP(M_MACD, M_DIFF, M_DEA, i):
+        con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "CK", INVEST_TYPE: TYPE_K}) # 触空
+        matched = True
     # 7. 反转2，下跌趋势下，出现金叉，但 MACD 短时间反转
     # if FZ2_D(M_MACD, M_DIFF, M_DEA, i):
     #     con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "ZD2", INVEST_TYPE: TYPE_D}) # 转多2
@@ -235,6 +236,6 @@ def simulated_invest(code, sd, ed, buy_count, pre_invest_type, show_table):
 if __name__ == "__main__":
     # 期货代码、起始日期、结束日期、交易手数、是否显示表格图形
     current_date = datetime.now().strftime("%Y-%m-%d")
-    result = simulated_invest(CODE_ZL, "2024-08-15", current_date, 1, TYPE_P, True)
+    result = simulated_invest(CODE_ZL, "2024-08-15", current_date, 3, TYPE_P, True)
     # result = simulated_invest(CODE_ZL, "2023-08-03", "2023-12-04", 1, TYPE_P, True)
     print(f"result: {result}")

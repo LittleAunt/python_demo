@@ -13,7 +13,7 @@ def print_red(p_str):
 # 最大交易金额
 MAX_AMOUNT = 5000
 
-HY_PRICE = 5
+HY_PRICE = 7
 
 SA_DATA_PATH = "./gupiao/QIQDATA/SA/data/{}.txt"
 KEY_START_DATE = "start_date"
@@ -32,11 +32,19 @@ QIQ_TYPE_S = 0
 QIQ_TYPE_B = 1
 
 CJZL_LIST = [
-    # {KEY_START_DATE: "2023-10-20", KEY_END_DATE: "2023-12-04", KEY_HY_CODE: "SA401"},
-    {KEY_START_DATE: "2023-12-05", KEY_END_DATE: "2024-03-22", KEY_HY_CODE: "SA405"},
-    # {KEY_START_DATE: "2024-03-25", KEY_END_DATE: "2024-08-13", KEY_HY_CODE: "SA409"},
+    # {KEY_START_DATE: "2023-10-20", KEY_END_DATE: "2023-12-04", KEY_HY_CODE: "SA401"},  
+    # {KEY_START_DATE: "2023-12-05", KEY_END_DATE: "2024-03-22", KEY_HY_CODE: "SA405"},
+    {KEY_START_DATE: "2024-03-25", KEY_END_DATE: "2024-08-13", KEY_HY_CODE: "SA409"}, 
     # {KEY_START_DATE: "2024-08-15", KEY_END_DATE: "2024-10-15", KEY_HY_CODE: "SA501"}
 ]
+
+def simulated_all():
+    result_list = []
+    start_index = 0
+    for i in range(start_index, len(CJZL_LIST)):
+        result = simulated_invest(CODE_ZL, CJZL_LIST[i][KEY_START_DATE], CJZL_LIST[i][KEY_END_DATE], 1, TYPE_P, False)
+        result_list.append(result)
+    return result_list
 
 # 定位到对应的价格合约
 def get_target_hy(df, reverse, price):
@@ -48,14 +56,6 @@ def get_target_hy(df, reverse, price):
     else:
         return df[df['close'] >= price].iloc[0]
 
-def simulated_all():
-    result_list = []
-    start_index = 0
-    for i in range(start_index, len(CJZL_LIST)):
-        result = simulated_invest(CODE_ZL, CJZL_LIST[i][KEY_START_DATE], CJZL_LIST[i][KEY_END_DATE], 1, TYPE_P, False)
-        result_list.append(result)
-    return result_list
-        
 def simulated_qiq(qh_records, code):
     qiq_d_record = [] # 买多记录
     qiq_k_record = [] # 买空记录
@@ -82,14 +82,16 @@ def simulated_qiq(qh_records, code):
     for i in range(0, len(qh_records)):
         record = qh_records[i]
         r_date = record[RECORD_DATE].strftime('%Y-%m-%d')
+        r_type = record[INVEST_TYPE]
         print(f"************* 交易日期：{r_date}")
         # 过滤出对应的日期数据
         filtered_df = df[df['date'] == r_date]
         # 再过滤对应的认购、认沽合约数据
         filtered_df_d = filtered_df[filtered_df['code'].str.startswith("{}C".format(code))]
         filtered_df_k = filtered_df[filtered_df['code'].str.startswith("{}P".format(code))]
-        # *************** 认购合约找最高标的的，也就是最后一条数据交易
-        # 1. 如果之前有买的记录，先卖掉上一笔认购
+        
+        # 1. 先平仓，不管是认购还是认沽
+        # 如果有认购记录
         if len(qiq_d_record) > 0:
             qiq_last_record = qiq_d_record[-1]
             if qiq_last_record[QIQ_RECORD_TYPE] == QIQ_TYPE_B:
@@ -105,21 +107,7 @@ def simulated_qiq(qh_records, code):
                     qiq_d_record.append(t_record)
                 else:
                     print_red(" ################# 认购异常，未找到合约进行卖出 ################# ")
-        # 2. 买入一笔认购, 如果是最后一笔交易，不买入
-        if i < len(qh_records) - 1:
-            # last_data = filtered_df_d.iloc[-1]
-            last_data = get_target_hy(filtered_df_d, True, HY_PRICE)
-            if last_data.close > 0:
-                one_amount = last_data.close * 20
-                count = (int)(MAX_AMOUNT / one_amount)
-                b_amount = count * one_amount
-                t_record = {QIQ_RECORD_DATE: r_date, QIQ_RECORD_HY_CODE: last_data.code, QIQ_RECORD_PRICE: last_data.close, QIQ_RECORD_AMOUNT: b_amount, QIQ_RECORD_COUNT: count, QIQ_RECORD_TYPE: QIQ_TYPE_B, QIQ_RECORD_PROFIT: 0}
-                print(f"认购 买 -----> 交易记录：\n{t_record}")
-                qiq_d_record.append(t_record)
-            else:
-                print_red(f" ################# 认购异常，合约价格为 {first_data.close} ################# ")
-        # *************** 认沽合约找最低标的的，也就是第一条数据交易
-        # 1. 如果之前有买的记录，先卖掉上一笔认沽
+        # 如果有认沽记录
         if len(qiq_k_record) > 0:
             qiq_last_record = qiq_k_record[-1]
             if qiq_last_record[QIQ_RECORD_TYPE] == QIQ_TYPE_B:
@@ -135,11 +123,22 @@ def simulated_qiq(qh_records, code):
                     qiq_k_record.append(t_record)
                 else:
                     print_red(" ################# 认沽异常，未找到合约进行卖出 ################# ")
-        # 2. 买入一笔认沽, 如果是最后一笔交易，不买入
-        if i < len(qh_records) - 1:
-            # first_data = filtered_df_k.iloc[0]
-            # print(f"$$$$$$$$$${filtered_df_k}")
+        # 2. 根据做空做多反向买期权
+        if r_type == TYPE_D:
+            last_data = get_target_hy(filtered_df_d, True, HY_PRICE)
+            # print(f"认购 买 -----> 当前合约数据：\n{last_data}")
+            if last_data.close > 0:
+                one_amount = last_data.close * 20
+                count = (int)(MAX_AMOUNT / one_amount)
+                b_amount = count * one_amount
+                t_record = {QIQ_RECORD_DATE: r_date, QIQ_RECORD_HY_CODE: last_data.code, QIQ_RECORD_PRICE: last_data.close, QIQ_RECORD_AMOUNT: b_amount, QIQ_RECORD_COUNT: count, QIQ_RECORD_TYPE: QIQ_TYPE_B, QIQ_RECORD_PROFIT: 0}
+                print(f"认购 买 -----> 交易记录：\n{t_record}")
+                qiq_d_record.append(t_record)
+            else:
+                print_red(f" ################# 认购异常，合约价格为 {first_data.close} ################# ")
+        elif r_type == TYPE_K:
             first_data = get_target_hy(filtered_df_k, False, HY_PRICE)
+            # print(f"认沽 买 +++++> 当前合约数据：\n{first_data}")
             if first_data.close > 0:
                 one_amount = first_data.close * 20
                 count = (int)(MAX_AMOUNT / one_amount)
@@ -149,6 +148,7 @@ def simulated_qiq(qh_records, code):
                 qiq_k_record.append(t_record)
             else:
                 print_red(f" ################# 认沽异常，合约价格为 {first_data.close} ################# ")
+            
     # 计算总的认购和认沽收益
     d_total_profit = sum(item[QIQ_RECORD_PROFIT] for item in qiq_d_record)
     k_total_profit = sum(item[QIQ_RECORD_PROFIT] for item in qiq_k_record)
@@ -157,7 +157,6 @@ def simulated_qiq(qh_records, code):
     print(f"#### 总认沽收益：{k_total_profit}")
     print(f"#### 总收益：{total_profit}")
     return total_profit
-
 def simulated_qiq_all():
     # 根据纯碱主联的走势找出每个买卖点
     result_list = simulated_all()
@@ -168,15 +167,16 @@ def simulated_qiq_all():
         code = cjzl[KEY_HY_CODE]
         profit = simulated_qiq(qh_records, code)
         profit_list.append(profit)
+    print("########################################################")
     print(f"#### 所有主连收益列表：{profit_list}")
     all_profit = sum(profit_list)
     print(f"#### 所有主连总收益：{all_profit}")
     return all_profit
-
-MIN_CHANGE = Decimal('20') 
-MAX_CHANGE = Decimal('150')
-CHANGE_STEP = Decimal('2')
-
+    
+MIN_CHANGE = Decimal('0.5') 
+MAX_CHANGE = Decimal('10')
+CHANGE_STEP = Decimal('0.5')
+   
 if __name__ == "__main__":
     # changes = np.arange(MIN_CHANGE, MAX_CHANGE + CHANGE_STEP, CHANGE_STEP)
     # result = []
