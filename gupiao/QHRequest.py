@@ -4,6 +4,8 @@ import json, requests, os
 import re
 import pandas as pd
 from datetime import datetime
+import time
+import threading
 
 # 设置显示选项以完整打印数据
 pd.set_option("display.max_rows", None)  # 显示所有行
@@ -68,6 +70,81 @@ def get_price_day(code, start_date, end_date, cache=True): # cache 指是否要�
     mask = (df.index >= start_date) & (df.index <= end_date)
     filtered_df = df[mask]
     return filtered_df
+
+# 曲合期货网，获取对应期货的实时交易价格数据
+def getRealtimeData(code):
+    # 获取当前时间戳（毫秒级别）
+    timestamp_ms = int(time.time() * 1000)
+    url = f"https://api.jijinhao.com/sQuoteCenter/realTime.htm?code=JO_{code}&_={timestamp_ms}"
+    hds = {
+        "Accept": "*/*",
+        "Accept-Encoding": "gzip, deflate, br, zstd",
+        "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
+        "Referer": "https://www.quheqihuo.com/quote/czce-sam.html",
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+        }
+    res_data = requests.get(url, headers=hds).content.decode('utf-8')
+    match = re.search(r'"([^"]*)"', res_data)
+    result = {}
+    if match:
+        content = match.group(1)  # 提取 "" 内的内容
+        values = content.split(",")  # 按 , 分割字符串内容
+        # print(f"期货实时数据：{values}")
+        result['open'] = float(values[-5])
+        result['b1'] = float(values[-7])
+        result['s1'] = float(values[-6])
+    return result
+
+prs = {
+    "http": "127.0.0.1:8888",
+    "https": "127.0.0.1:8888",
+}
+# 东方财富，获取实时期权交易价格数据
+def getQIQRealtimeData(code, callback):
+    url = f"https://36.futsseapi.eastmoney.com/sse/141_{code}_qt?token=1101ffec61617c99be287c1bec3085ff&field=name,sc,dm,p,zsjd,zdf,zde,utime,o,zjsj,qrspj,h,l,mrj,mcj,vol,cclbh,zt,dt,np,wp,ccl,rz,cje,mcl,mrl,jjsj,j,lb,zf"
+    hds = {
+        "Accept": "text/event-stream",
+        "Accept-Encoding": "gzip, deflate, br, zstd",
+        "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
+        "Cache-control": "no-cache",
+        "Connection": "keep-alive",
+        "Host": "36.futsseapi.eastmoney.com",
+        "Origin": "https://quote.eastmoney.com",
+        "Referer": "https://quote.eastmoney.com/option/141.SA501P1500.html",
+        "Sec-ch-ua": '"Chromium";v="130", "Google Chrome";v="130", "Not?A_Brand";v="99"',
+        "Sec-ch-ua-mobile": "?0",
+        "Sec-ch-ua-platform": '"macOS"',
+        "Sec-fetch-dest": "empty",
+        "Sec-fetch-mode": "cors",
+        "Sec-fetch-site": "same-site",
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"
+        }
+    
+    def stream():
+        with requests.get(url, headers=hds, stream=True) as response:
+            response.encoding = 'utf-8'  # 指定编码格式为 utf-8
+            for line in response.iter_lines(decode_unicode=True):
+                if line and line.startswith("data:"):
+                    value = line[len("data:"):].strip()  # 提取数据内容
+                    # 将 json 字符串转换为 Python 字典
+                    data = json.loads(value)
+                    print(f'期权实时数据：getQIQRealtimeData -> {data}')
+                    if "qt" in data:
+                        result = {
+                            "open": data["qt"]["o"],
+                            "b1": data["qt"]["mrj"],
+                            "s1": data["qt"]["mcj"],
+                            "b1_vol": data["qt"]["mrl"],
+                            "s1_vol": data["qt"]["mcl"],
+                            "cur_price": data["qt"]["p"],
+                            "cj_vol": data["qt"]["vol"],
+                            "cc_vol": data["qt"]["ccl"]
+                        }
+                        callback(result)
+    # 启动新线程进行非阻塞请求
+    thread = threading.Thread(target=stream)
+    # thread.daemon = True  # 设置为守护线程，使其随主线程退出
+    thread.start()
 
 if __name__ == "__main__":
     df = get_price_day("233773", "2024-07-22", "2024-07-29") # 纯碱主连：233773，去接口网站抓取数据 URL 中会有对应的 Code

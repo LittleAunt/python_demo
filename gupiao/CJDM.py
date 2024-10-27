@@ -53,18 +53,23 @@ def get_price_from_code(code):
 # 定位到对应的价格合约
 def get_target_hy(df, qh_open):
     print(f"##### qh_open: {qh_open}")
+    for i in range(0, len(df)):
+        code = df.iloc[i]['code']
+        hy_price = float(get_price_from_code(code))
+        if hy_price >= qh_open:
+            return df.iloc[i]    
     # 合约每 20 块钱一个档位
-    for i in range(0, len(df)):
-        code = df.iloc[i]['code']
-        hy_price = float(get_price_from_code(code))
-        if abs(qh_open - hy_price) < 20:
-            return df.iloc[i]
-    # 合约每 40 块钱一个档位
-    for i in range(0, len(df)):
-        code = df.iloc[i]['code']
-        hy_price = float(get_price_from_code(code))
-        if abs(qh_open - hy_price) < 40:
-            return df.iloc[i]
+    # for i in range(0, len(df)):
+    #     code = df.iloc[i]['code']
+    #     hy_price = float(get_price_from_code(code))
+    #     if abs(qh_open - hy_price) < 20:
+    #         return df.iloc[i]
+    # # 合约每 40 块钱一个档位
+    # for i in range(0, len(df)):
+    #     code = df.iloc[i]['code']
+    #     hy_price = float(get_price_from_code(code))
+    #     if abs(qh_open - hy_price) < 40:
+    #         return df.iloc[i]
     print(f"##### return None")
     print(f"### df \n{df}")
     return None
