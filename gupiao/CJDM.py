@@ -30,9 +30,9 @@ QIQ_RECORD_PROFIT = "profit" # 收益
 
 CJZL_LIST = [
     # {KEY_START_DATE: "2023-10-20", KEY_END_DATE: "2023-12-04", KEY_HY_CODE: "SA401"},  
-    # {KEY_START_DATE: "2023-12-05", KEY_END_DATE: "2024-03-22", KEY_HY_CODE: "SA405"},
+    {KEY_START_DATE: "2023-12-05", KEY_END_DATE: "2024-03-22", KEY_HY_CODE: "SA405"},
     # {KEY_START_DATE: "2024-03-25", KEY_END_DATE: "2024-08-13", KEY_HY_CODE: "SA409"}, 
-    {KEY_START_DATE: "2024-08-15", KEY_END_DATE: "2024-10-24", KEY_HY_CODE: "SA501"}
+    # {KEY_START_DATE: "2024-08-15", KEY_END_DATE: "2024-10-24", KEY_HY_CODE: "SA501"}
 ]
 
 def simulated_all():
@@ -50,26 +50,26 @@ def get_price_from_code(code):
     else:
         return None
     
-# 定位到对应的价格合约
+# 定位到对应的价格合约.(认沽合约大于开盘，认购合约小于开盘)
 def get_target_hy(df, qh_open):
     print(f"##### qh_open: {qh_open}")
+    # for i in range(0, len(df)):
+    #     code = df.iloc[i]['code']
+    #     hy_price = float(get_price_from_code(code))
+    #     if hy_price >= qh_open:
+    #         return df.iloc[i]    
+    # 合约每 20 块钱一个档位
     for i in range(0, len(df)):
         code = df.iloc[i]['code']
         hy_price = float(get_price_from_code(code))
-        if hy_price >= qh_open:
-            return df.iloc[i]    
-    # 合约每 20 块钱一个档位
-    # for i in range(0, len(df)):
-    #     code = df.iloc[i]['code']
-    #     hy_price = float(get_price_from_code(code))
-    #     if abs(qh_open - hy_price) < 20:
-    #         return df.iloc[i]
-    # # 合约每 40 块钱一个档位
-    # for i in range(0, len(df)):
-    #     code = df.iloc[i]['code']
-    #     hy_price = float(get_price_from_code(code))
-    #     if abs(qh_open - hy_price) < 40:
-    #         return df.iloc[i]
+        if abs(qh_open - hy_price) < 20:
+            return df.iloc[i]
+    # 合约每 40 块钱一个档位
+    for i in range(0, len(df)):
+        code = df.iloc[i]['code']
+        hy_price = float(get_price_from_code(code))
+        if abs(qh_open - hy_price) < 40:
+            return df.iloc[i]
     print(f"##### return None")
     print(f"### df \n{df}")
     return None
@@ -131,7 +131,9 @@ def simulated_qiq(qh_records, code):
             hy_data = get_target_hy(filtered_df_k, qhdata[QH_OPEN])
         if r_type == TYPE_K:
             hy_data = get_target_hy(filtered_df_d, qhdata[QH_OPEN])
+            # continue
         hy_profit = (hy_data['close'] - hy_data['open']) * 20 * 2
+        print(f"期权数据-> 开盘: {hy_data['open']}, 收盘: {hy_data['close']}")
         # 3. 期货与期权的总收益
         total_profit = qh_profit + hy_profit
         dm_profit_list.append({

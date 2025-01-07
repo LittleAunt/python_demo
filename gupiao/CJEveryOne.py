@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # -------------------------- 模拟整个纯碱主连的交易，用每个合约的 K 线数据 --------------------------#
-from CJOneSimulated import *
+from CJZLSimulated import *
 
 CODE_01 = "233774"
 CODE_05 = "233778"
@@ -24,15 +24,26 @@ CJZL_LIST = [
     {KEY_CODE: CODE_09, KEY_START_DATE: "2023-04-12", KEY_END_DATE: "2023-08-19"}, # 09
     {KEY_CODE: CODE_01, KEY_START_DATE: "2023-08-19", KEY_END_DATE: "2023-12-22"}, # 01
     {KEY_CODE: CODE_05, KEY_START_DATE: "2023-12-22", KEY_END_DATE: "2024-04-10"}, # 05
-    {KEY_CODE: CODE_09, KEY_START_DATE: "2024-04-10", KEY_END_DATE: "2024-08-03"}  # 09
+    {KEY_CODE: CODE_09, KEY_START_DATE: "2024-04-10", KEY_END_DATE: "2024-08-14"}, # 09
+    {KEY_CODE: CODE_01, KEY_START_DATE: "2024-08-15", KEY_END_DATE: "2024-12-12"}  # 01
 ]
 
 def simulated_all(show_table):
     result_list = []
     for i in range(0, len(CJZL_LIST)):
-        result = simulated_invest(CJZL_LIST[i][KEY_CODE], CJZL_LIST[i][KEY_START_DATE], CJZL_LIST[i][KEY_END_DATE], 1, False)
+        result = simulated_invest(CJZL_LIST[i][KEY_CODE], CJZL_LIST[i][KEY_START_DATE], CJZL_LIST[i][KEY_END_DATE], 1, TYPE_P, False)
         result_list.append(result)
     print(result_list)
+    # 找出所有交易记录中最大和最小的两条记录
+    max_record = max(result_list[0][RESULT_RECORDS], key=lambda x: x[RECORD_PROFIT])
+    min_record = min(result_list[0][RESULT_RECORDS], key=lambda x: x[RECORD_PROFIT])
+    for i in range(1, len(result_list)):
+        max_temp_r = max(result_list[i][RESULT_RECORDS], key=lambda x: x[RECORD_PROFIT])
+        max_record = max_record if max_record[RECORD_PROFIT] > max_temp_r[RECORD_PROFIT] else max_temp_r
+        min_temp_r = min(result_list[i][RESULT_RECORDS], key=lambda x: x[RECORD_PROFIT])
+        min_record = min_record if min_record[RECORD_PROFIT] < min_temp_r[RECORD_PROFIT] else min_temp_r
+    print(f"最赚的一笔交易：{max_record}")
+    print(f"最亏的一笔交易：{min_record}")
     total_profit = sum(item[RESULT_PROFIT] for item in result_list)
     print(f"最终总收益: {total_profit}")
     if show_table:        

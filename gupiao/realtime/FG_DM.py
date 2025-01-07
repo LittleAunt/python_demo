@@ -14,7 +14,7 @@ from utils import *
 
 # 期货是否是做多，确定买卖的方向
 DUO = True
-QIQ_CODE = "FG501P1340"
+QIQ_CODE = "FG501P1400"
 QIQ_DATA = None
 
 # 定义下载目录

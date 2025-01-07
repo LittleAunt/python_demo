@@ -81,7 +81,7 @@ def condition_matched(con_mets, cur_date, M_DIFF, M_DEA, M_MACD, OPEN, CLOSE, i)
     if MACD_DOWN_AFTER_RED_K3(M_DIFF, OPEN, CLOSE, M_MACD, i):
         con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "ZK0", INVEST_TYPE: TYPE_K}) # 转空0
         matched = True
-    # 5. 反转做多、做空。MACD首次大于前一天，MACD未溢出           (需设定范围，高 0.1 也是高)
+    # # 5. 反转做多、做空。MACD首次大于前一天，MACD未溢出           (需设定范围，高 0.1 也是高)
     if MACD_UP_V(M_MACD, M_DIFF, M_DEA, i):
         con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "ZD1", INVEST_TYPE: TYPE_D}) # 转多1
         matched = True
@@ -95,6 +95,7 @@ def condition_matched(con_mets, cur_date, M_DIFF, M_DEA, M_MACD, OPEN, CLOSE, i)
     if MACD_DOWN_V_CP(M_MACD, M_DIFF, M_DEA, i):
         con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "CK", INVEST_TYPE: TYPE_K}) # 触空
         matched = True
+    
     # 7. 反转2，下跌趋势下，出现金叉，但 MACD 短时间反转
     # if FZ2_D(M_MACD, M_DIFF, M_DEA, i):
     #     con_mets.append({CON_MET_DATE: cur_date, CON_MET_MSG: "ZD2", INVEST_TYPE: TYPE_D}) # 转多2

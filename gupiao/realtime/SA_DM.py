@@ -14,7 +14,7 @@ from utils import *
 
 # 期货是否是做多，确定买卖的方向
 DUO = True
-QIQ_CODE = "SA501P1500"
+QIQ_CODE = "SA501P1520"
 QIQ_DATA = None
 
 # 定义下载目录
@@ -76,7 +76,7 @@ def cal_profit():
 def handle_qiq_data(data):
     global QIQ_DATA
     QIQ_DATA = data
-    logstr = f"期权数据: {QIQ_DATA}"
+    logstr = f"***期权数据: {QIQ_DATA}"
     print(logstr)
     logging.info(logstr)
     cal_profit()

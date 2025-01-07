@@ -99,6 +99,8 @@ prs = {
     "http": "127.0.0.1:8888",
     "https": "127.0.0.1:8888",
 }
+
+qiq_realtime_data = {}
 # 东方财富，获取实时期权交易价格数据
 def getQIQRealtimeData(code, callback):
     url = f"https://36.futsseapi.eastmoney.com/sse/141_{code}_qt?token=1101ffec61617c99be287c1bec3085ff&field=name,sc,dm,p,zsjd,zdf,zde,utime,o,zjsj,qrspj,h,l,mrj,mcj,vol,cclbh,zt,dt,np,wp,ccl,rz,cje,mcl,mrl,jjsj,j,lb,zf"
@@ -128,19 +130,23 @@ def getQIQRealtimeData(code, callback):
                     value = line[len("data:"):].strip()  # 提取数据内容
                     # 将 json 字符串转换为 Python 字典
                     data = json.loads(value)
-                    print(f'期权实时数据：getQIQRealtimeData -> {data}')
+                    print(f'期权实时数据：getQIQRealtimeData -> {data}')       
                     if "qt" in data:
-                        result = {
-                            "open": data["qt"]["o"],
-                            "b1": data["qt"]["mrj"],
-                            "s1": data["qt"]["mcj"],
-                            "b1_vol": data["qt"]["mrl"],
-                            "s1_vol": data["qt"]["mcl"],
-                            "cur_price": data["qt"]["p"],
-                            "cj_vol": data["qt"]["vol"],
-                            "cc_vol": data["qt"]["ccl"]
-                        }
-                        callback(result)
+                        qt_data = data["qt"]
+                        data_changed = False
+                        global qiq_realtime_data
+                        if "o" in qt_data and qt_data["o"] != "-":
+                            qiq_realtime_data["open"] = qt_data["o"]
+                            data_changed = True
+                        if "mrj" in qt_data and qt_data["mrj"] != "-":
+                            qiq_realtime_data["b1"] = qt_data["mrj"]
+                            data_changed = True
+                        if "mcj" in qt_data and qt_data["mcj"] != "-":
+                            qiq_realtime_data["s1"] = qt_data["mcj"]
+                            data_changed = True
+                        # 数据发生改变，且所有字段都不为空
+                        if data_changed and "open" in qiq_realtime_data and "b1" in qiq_realtime_data and "s1" in qiq_realtime_data:
+                            callback(qiq_realtime_data)
     # 启动新线程进行非阻塞请求
     thread = threading.Thread(target=stream)
     # thread.daemon = True  # 设置为守护线程，使其随主线程退出
