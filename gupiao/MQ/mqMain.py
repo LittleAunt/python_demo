@@ -93,7 +93,11 @@ def count_ranges(result_list):
 
 e_date = "2025-01-11"
 
+<<<<<<< HEAD
 df=get_price('sh000001',frequency='1d',count=2600, end_date=e_date, tx_channel=False)
+=======
+df=get_price('sh000001',frequency='1d',count=2000, end_date=e_date, tx_channel=False)
+>>>>>>> ee0cd50 (qiquan)
 print('上证指数日线行情\n',df)
 
 start_date = df.index[0]
